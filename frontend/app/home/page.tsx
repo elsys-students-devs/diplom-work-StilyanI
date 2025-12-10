@@ -1,28 +1,34 @@
 "use client";
 
-import { AppBar, Box, IconButton, ImageList, ImageListItem, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, IconButton, ImageList, ImageListItem, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
 import { AccountCircle } from "@mui/icons-material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Media, getAllMedia } from "../services/MediaService";
 
 export default function HomePage() {
-    const [continueWatching, setcontinueWatching] = useState<Media[]>([]);
+    const [continueWatching, setContinueWatching] = useState<Media[]>([]);
+    const [drawerOpen, setDrawerOpen] = useState(false);
+
+    function toggleDrawer() {
+        setDrawerOpen(!drawerOpen);
+    }
 
     useEffect(() => {
         const media = getAllMedia();
-        setcontinueWatching(media);
+        setContinueWatching(media);
     }, [])
 
     return(
-        <Box>
+        <div>
             <AppBar
                 sx={{backgroundColor: "gray"}}
                 position="sticky"
             >
                 <Toolbar>
-                    <IconButton>
+                    <IconButton onClick={toggleDrawer} aria-label="open drawer">
                         <MenuIcon/>
                     </IconButton>
 
@@ -77,6 +83,7 @@ export default function HomePage() {
                                 sx={{flex: "0 0 auto", height: 300, mr: 3, width: 400}}
                             >
                                 <img
+                                    alt={media.title}
                                     src={media.backdropUrl}
                                     style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
                                 />
@@ -113,6 +120,7 @@ export default function HomePage() {
                                 sx={{flex: "0 0 auto", height: 300, mr: 3, width: 200}}
                             >
                                 <img
+                                    alt={media.title}
                                     src={media.posterUrl}
                                     style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
                                 />
@@ -149,6 +157,7 @@ export default function HomePage() {
                                 sx={{flex: "0 0 auto", height: 300, mr: 3, width: 200}}
                             >
                                 <img
+                                    alt={media.title}
                                     src={media.posterUrl}
                                     style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
                                 />
@@ -157,6 +166,23 @@ export default function HomePage() {
                     </ImageList>
                 </Box>
             </div>
-        </Box>
+
+            <Drawer open={drawerOpen} onClose={toggleDrawer} slotProps={{paper: {sx: {backgroundColor:"gray"}} }}>
+                <Box sx={{width: 250}} role="presentation">
+                    <List>
+                        {['Home', 'Movies', "Shows"].map((text) => (
+                        <ListItem key={text}>
+                            <ListItemButton href={"/" + text.toLowerCase()}>
+                                <ListItemIcon>
+                                    <HomeIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={text}/>
+                            </ListItemButton>
+                        </ListItem>
+                        ))}
+                    </List>
+                </Box>
+            </Drawer>
+        </div>
     )
 }
