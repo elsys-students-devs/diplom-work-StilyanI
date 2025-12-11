@@ -1,12 +1,16 @@
 "use client";
 
-import { AppBar, Box, IconButton, ImageList, ImageListItem, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton } from "@mui/material";
+import { AppBar, Box, IconButton, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Divider } from "@mui/material";
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
+import LocalMoviesIcon from '@mui/icons-material/LocalMovies';
+import TvIcon from '@mui/icons-material/Tv';
+import DashboardIcon from '@mui/icons-material/Dashboard';
 import { AccountCircle } from "@mui/icons-material";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Media, getAllMedia } from "../services/MediaService";
+import ScrollableImageList from "@/app/components/Home/ScrollableImageList";
 
 export default function HomePage() {
     const [continueWatching, setContinueWatching] = useState<Media[]>([]);
@@ -54,132 +58,47 @@ export default function HomePage() {
             </AppBar>
 
             <div>
-                {/* TODO: Make scrollable list seperate component */}
                 <Typography variant="h4">Continue Watching</Typography>
-
-                <Box
-                    sx={{
-                        width: "100%",
-                        height: 320,
-                        overflowX: "auto",
-                        overflowY: "hidden",
-                        display: "block"
-                    }}
-                >
-                    <ImageList
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "nowrap",
-                            gap: 2,
-                            pl: 1,
-                            alignItems: "stretch",
-                            scrollbarWidth: "none"
-                        }}
-                    >
-                        {continueWatching?.map((media) => (
-                            <ImageListItem
-                                key={media.id}
-                                sx={{flex: "0 0 auto", height: 300, mr: 3, width: 400}}
-                            >
-                                <img
-                                    alt={media.title}
-                                    src={media.backdropUrl}
-                                    style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
-                                />
-                            </ImageListItem>
-                        ))}
-                    </ImageList>
-                </Box>
+                <ScrollableImageList items={continueWatching} position={"horizontal"}/>
 
                 <Typography variant="h4">Recently Added Movies</Typography>
-
-                <Box
-                    sx={{
-                        width: "100%",
-                        height: 320,
-                        overflowX: "auto",
-                        overflowY: "hidden",
-                        display: "block"
-                    }}
-                >
-                    <ImageList
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "nowrap",
-                            gap: 2,
-                            pl: 1,
-                            alignItems: "stretch",
-                            scrollbarWidth: "none"
-                        }}
-                    >
-                        {continueWatching?.map((media) => (
-                            <ImageListItem
-                                key={media.id}
-                                sx={{flex: "0 0 auto", height: 300, mr: 3, width: 200}}
-                            >
-                                <img
-                                    alt={media.title}
-                                    src={media.posterUrl}
-                                    style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
-                                />
-                            </ImageListItem>
-                        ))}
-                    </ImageList>
-                </Box>
+                <ScrollableImageList items={continueWatching} position={"vertical"}/>
 
                 <Typography variant="h4">Recently Added Shows</Typography>
-
-                <Box
-                    sx={{
-                        width: "100%",
-                        height: 320,
-                        overflowX: "auto",
-                        overflowY: "hidden",
-                        display: "block"
-                    }}
-                >
-                    <ImageList
-                        sx={{
-                            display: "flex",
-                            flexDirection: "row",
-                            flexWrap: "nowrap",
-                            gap: 2,
-                            pl: 1,
-                            alignItems: "stretch",
-                            scrollbarWidth: "none"
-                        }}
-                    >
-                        {continueWatching?.map((media) => (
-                            <ImageListItem
-                                key={media.id}
-                                sx={{flex: "0 0 auto", height: 300, mr: 3, width: 200}}
-                            >
-                                <img
-                                    alt={media.title}
-                                    src={media.posterUrl}
-                                    style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
-                                />
-                            </ImageListItem>
-                        ))}
-                    </ImageList>
-                </Box>
+                <ScrollableImageList items={continueWatching} position={"vertical"}/>
             </div>
 
             <Drawer open={drawerOpen} onClose={toggleDrawer} slotProps={{paper: {sx: {backgroundColor:"gray"}} }}>
-                <Box sx={{width: 250}} role="presentation">
+                <Box sx={{width: 250}}>
                     <List>
-                        {['Home', 'Movies', "Shows"].map((text) => (
+                        {['Home', 'Movies', 'Shows'].map((text) => (
                         <ListItem key={text}>
                             <ListItemButton href={"/" + text.toLowerCase()}>
                                 <ListItemIcon>
-                                    <HomeIcon/>
+                                    {
+                                        {
+                                            'Home': <HomeIcon/>,
+                                            'Movies': <LocalMoviesIcon/>,
+                                            'Shows': <TvIcon/>
+                                        }[text]
+                                    }
                                 </ListItemIcon>
                                 <ListItemText primary={text}/>
                             </ListItemButton>
                         </ListItem>
                         ))}
+
+                        <Divider/>
+
+                        <ListItem key={'dashboard'}>
+                            <ListItemButton href={"/dashboard"}>
+                                <ListItemIcon>
+                                    <DashboardIcon/>
+                                </ListItemIcon>
+                                <ListItemText primary={'Dashboard'}/>
+                            </ListItemButton>
+                        </ListItem>
+
                     </List>
                 </Box>
             </Drawer>
