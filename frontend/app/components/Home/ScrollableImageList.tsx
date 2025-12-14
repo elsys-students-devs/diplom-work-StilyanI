@@ -14,10 +14,10 @@ export default function ScrollableImageList({
         <Box
             sx={{
                 width: "100%",
-                height: 320,
                 overflowX: "auto",
                 overflowY: "hidden",
-                display: "block"
+                display: "block",
+                mb: 3
             }}
         >
             <ImageList
@@ -26,7 +26,8 @@ export default function ScrollableImageList({
                     flexDirection: "row",
                     flexWrap: "nowrap",
                     gap: 2,
-                    pl: 1,
+                    padding: 2,
+                    pl: 4,
                     alignItems: "stretch",
                     scrollbarWidth: "none"
                 }}
@@ -34,7 +35,8 @@ export default function ScrollableImageList({
                 {items?.map((media) => (
                     <ImageListItem
                         key={media.id}
-                        sx={{flex: "0 0 auto", height: position == "vertical" ? 300 : 200, mr: 3, width: position == "vertical" ? 200 : 400}}
+                        sx={{flex: "0 0 auto", mr: 3, width: position == "vertical" ? 200 : 400}}
+                        className={"media-image"}
                     >
                         <Link href={'/movies/' + media.id}>
                             <img
