@@ -37,6 +37,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
 }
 
 tasks.named('test') {
