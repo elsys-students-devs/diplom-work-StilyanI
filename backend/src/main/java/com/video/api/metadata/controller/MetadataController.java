@@ -6,11 +6,10 @@ import com.video.api.metadata.model.Media;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -22,15 +21,29 @@ public class MetadataController {
         this.tmdbService = tmdbService;
     }
 
-    @GetMapping("/tv")
-    public ResponseEntity<Media> searchTv(@RequestParam String name) throws IOException {
-        Media result = tmdbService.search(name, MediaType.TVSHOW);
+    @GetMapping("/{id}")
+    public ResponseEntity<Media> findById(@PathVariable("id") String id, @RequestParam String source){
+        Media result = tmdbService.findById(id, source);
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/movie")
-    public ResponseEntity<Media> searchMovie(@RequestParam String name) throws IOException {
-        Media result = tmdbService.search(name, MediaType.MOVIE);
+    @GetMapping("/search/tv")
+    public ResponseEntity<Media> searchTv(@RequestParam String name, @RequestParam(required = false) Integer year) {
+        Media result;
+        if(year == null)
+            result = tmdbService.search(name, MediaType.TVSHOW);
+        else
+            result = tmdbService.search(name, MediaType.TVSHOW, year);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/search/movie")
+    public ResponseEntity<Media> searchMovie(@RequestParam String name, @RequestParam(required = false) Integer year) {
+        Media result;
+        if(year == null)
+            result = tmdbService.search(name, MediaType.MOVIE);
+        else
+            result = tmdbService.search(name, MediaType.MOVIE, year);
         return ResponseEntity.ok(result);
     }
 }
