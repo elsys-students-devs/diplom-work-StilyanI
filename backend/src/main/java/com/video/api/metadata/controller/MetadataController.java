@@ -29,21 +29,13 @@ public class MetadataController {
 
     @GetMapping("/search/tv")
     public ResponseEntity<Media> searchTv(@RequestParam String name, @RequestParam(required = false) Integer year) {
-        Media result;
-        if(year == null)
-            result = tmdbService.search(name, MediaType.TVSHOW);
-        else
-            result = tmdbService.search(name, MediaType.TVSHOW, year);
+        Media result = tmdbService.search(name, MediaType.TVSHOW, year);
         return ResponseEntity.ok(result);
     }
 
     @GetMapping("/search/movie")
     public ResponseEntity<Media> searchMovie(@RequestParam String name, @RequestParam(required = false) Integer year) {
-        Media result;
-        if(year == null)
-            result = tmdbService.search(name, MediaType.MOVIE);
-        else
-            result = tmdbService.search(name, MediaType.MOVIE, year);
+        Media result = tmdbService.search(name, MediaType.MOVIE, year);
         return ResponseEntity.ok(result);
     }
 }
