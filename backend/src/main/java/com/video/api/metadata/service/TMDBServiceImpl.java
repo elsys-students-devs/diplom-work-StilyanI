@@ -6,7 +6,6 @@ import com.video.api.metadata.model.MediaType;
 import com.video.api.metadata.model.TMDBSearchIdResponse;
 import com.video.api.metadata.model.TMDBSearchResponse;
 import com.video.api.metadata.model.TvEpisode;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -16,7 +15,6 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-@Slf4j
 @Service
 public class TMDBServiceImpl implements TMDBService {
 
