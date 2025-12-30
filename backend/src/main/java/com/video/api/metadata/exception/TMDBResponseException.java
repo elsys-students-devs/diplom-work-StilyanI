@@ -8,7 +8,8 @@ public class TMDBResponseException extends RuntimeException {
 
     private final Response response;
 
-    public TMDBResponseException(Response response) {
+    public TMDBResponseException(String message, Response response) {
+        super(message);
         this.response = response;
     }
 }

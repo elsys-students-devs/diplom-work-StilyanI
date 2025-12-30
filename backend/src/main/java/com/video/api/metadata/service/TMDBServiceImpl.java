@@ -5,6 +5,7 @@ import com.video.api.metadata.model.Media;
 import com.video.api.metadata.model.MediaType;
 import com.video.api.metadata.model.TMDBSearchIdResponse;
 import com.video.api.metadata.model.TMDBSearchResponse;
+import com.video.api.metadata.model.TvEpisode;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,7 +32,7 @@ public class TMDBServiceImpl implements TMDBService {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if(!response.isSuccessful())throw new TMDBResponseException(response);
+            if(!response.isSuccessful())throw new TMDBResponseException(response.body().string(), response);
 
             TMDBSearchResponse tmdbSearchResponse = objectMapper.readValue(response.body().string(), TMDBSearchResponse.class);
 
@@ -63,7 +64,7 @@ public class TMDBServiceImpl implements TMDBService {
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
-            if(!response.isSuccessful())throw new TMDBResponseException(response);
+            if(!response.isSuccessful())throw new TMDBResponseException(response.body().string(), response);
 
             TMDBSearchIdResponse tmdbSearchIdResponse = objectMapper.readValue(response.body().string(), TMDBSearchIdResponse.class);
 
@@ -71,6 +72,23 @@ public class TMDBServiceImpl implements TMDBService {
             else if(!tmdbSearchIdResponse.tv_results().isEmpty()) return tmdbSearchIdResponse.tv_results().getFirst();
             else return null;
 
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public TvEpisode getTvEpisode(int seriesId, int seasonNumber, int episodeNumber) {
+        Request request = new Request.Builder()
+                .url("https://api.themoviedb.org/3/tv/" + seriesId + "/season/" + seasonNumber + "/episode/" + episodeNumber + "?language=en-US")
+                .get()
+                .addHeader("accept", "application/json")
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if(!response.isSuccessful())throw new TMDBResponseException(response.body().string(), response);
+
+            return objectMapper.readValue(response.body().string(), TvEpisode.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

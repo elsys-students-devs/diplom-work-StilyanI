@@ -9,11 +9,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
     @ExceptionHandler(TMDBResponseException.class)
     public ResponseEntity<ErrorResponse> handleTMDBException(TMDBResponseException ex) {
-        String errorMsg = ex.getResponse().body().toString();
 
         ErrorResponse error = new ErrorResponse(
                 ex.getResponse().code(),
-                errorMsg
+                ex.getMessage()
         );
 
         return new ResponseEntity<>(error, HttpStatus.BAD_GATEWAY);
