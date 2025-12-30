@@ -36,13 +36,13 @@ export default function ScrollableImageList({
                     <ImageListItem
                         key={media.id}
                         sx={{flex: "0 0 auto", mr: 3, width: position == "vertical" ? 200 : 400}}
-                        className={"media-image"}
                     >
                         <Link href={'/movies/' + media.id}>
                             <img
                                 alt={media.title}
                                 src={position == "vertical" ? media.posterUrl : media.backdropUrl}
-                                style={{borderRadius: 8, width: "100%", height: "100%", objectFit: "cover"}}
+                                className={"media-image"}
+                                style={{width: "100%", height: "100%", objectFit: "cover"}}
                             />
                         </Link>
                     </ImageListItem>

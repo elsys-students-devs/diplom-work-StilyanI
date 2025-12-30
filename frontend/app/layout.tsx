@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import ThemeRegistry from "@/app/theme/ThemeRegistry";
 import "./globals.css";
+import Header from "@/app/components/common/Header";
 
 const archivo = Archivo({
     subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
         className={archivo.variable}
       >
           <ThemeRegistry>
+              <Header/>
               {children}
           </ThemeRegistry>
       </body>

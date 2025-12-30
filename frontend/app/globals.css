@@ -34,6 +34,7 @@ body {
 
 .media-image {
     transition: 0.2s;
+    border-radius: 6px;
 }
 
 .media-image:hover {
