@@ -37,7 +37,7 @@ export default function ScrollableImageList({
                         key={media.id}
                         sx={{flex: "0 0 auto", mr: 3, width: position == "vertical" ? 200 : 400}}
                     >
-                        <Link href={'/movies/' + media.id}>
+                        <Link replace href={(media.type === "movie" ? '/movies/' : "/shows/") + media.id}>
                             <img
                                 alt={media.title}
                                 src={position == "vertical" ? media.posterUrl : media.backdropUrl}

@@ -19,8 +19,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import TvIcon from "@mui/icons-material/Tv";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import {usePathname} from "next/navigation";
 
 export default function Header(){
+    const pathname = usePathname();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     function toggleDrawer() {
@@ -38,17 +40,33 @@ export default function Header(){
                         <MenuIcon/>
                     </IconButton>
 
+                    {pathname !== "/home" &&
+                        (
+                            <IconButton href={"/home"}>
+                                <HomeIcon/>
+                            </IconButton>
+                        )
+                    }
+
                     <Box sx={{flexGrow: 1}}/>
 
-                    <Link href={"/movies"}>
-                        <Typography className="section-button">Movies</Typography>
-                    </Link>
+                    {pathname === "/movies" ?
+                        <Typography className="unselectable-header-button">Movies</Typography>
+                         :
+                        (<Link replace href={"/movies"}>
+                            <Typography className="section-button">Movies</Typography>
+                        </Link>)
+                    }
 
                     <Box sx={{mx: 2}}/>
 
-                    <Link href={"/shows"}>
-                        <Typography className="section-button">Shows</Typography>
-                    </Link>
+                    {pathname === "/shows" ?
+                        <Typography className="unselectable-header-button">Shows</Typography>
+                        :
+                        (<Link replace href={"/shows"}>
+                            <Typography className="section-button">Shows</Typography>
+                        </Link>)
+                    }
 
                     <Box sx={{flexGrow: 1}}/>
 

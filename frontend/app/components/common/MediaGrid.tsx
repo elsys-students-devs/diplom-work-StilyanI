@@ -1,9 +1,10 @@
-import {Movie} from "@/app/services/MovieService";
 import {Box, Grid, Typography} from "@mui/material";
 import Image from "next/image";
+import Link from "next/link";
+import {Media} from "@/app/services/MediaService";
 
 interface MediaGridProps {
-    items: Movie[];
+    items: Media[];
 }
 
 export default function MediaGrid({
@@ -18,13 +19,15 @@ export default function MediaGrid({
                         flexDirection="column"
                         alignItems="center"
                     >
-                        <Image
-                            className="media-image"
-                            src={item.posterUrl}
-                            alt={item.title}
-                            width={300}
-                            height={450}
-                        />
+                        <Link replace href={(item.type === "movie" ? '/movies/' : "/shows/") + item.id}>
+                            <Image
+                                className="media-image"
+                                src={item.posterUrl}
+                                alt={item.title}
+                                width={300}
+                                height={450}
+                            />
+                        </Link>
                         <Typography sx={{mt: 2, fontSize: "24px"}}>
                             {item.title}
                         </Typography>

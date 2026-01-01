@@ -1,23 +1,23 @@
 "use client";
 
 import { useEffect, useState} from "react";
-import { getMovies } from "@/app/services/MovieService";
 import { Box } from "@mui/material";
 import MediaGrid from "@/app/components/common/MediaGrid";
 import {Media} from "@/app/services/MediaService";
+import {getShows} from "@/app/services/ShowService";
 
 
 export default function MoviesPage(){
-    const [movieList, setMovieList] = useState<Media[]>([]);
+    const [showList, setShowList] = useState<Media[]>([]);
 
     useEffect(() => {
-        const movies = getMovies();
-        setMovieList(movies);
+        const shows = getShows();
+        setShowList(shows);
     })
 
     return (
         <Box sx={{ mt: 3 }}>
-            <MediaGrid items={movieList}/>
+            <MediaGrid items={showList}/>
         </Box>
     )
 }
