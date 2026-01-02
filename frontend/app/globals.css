@@ -46,8 +46,41 @@ body {
     color: white;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+.media-page-hero {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    height: 40vh;
+    filter: blur(4px);
+    position: relative;
+    z-index: -1;
+}
+
+.media-page-info-ribbon {
+    background-color: #202020;
+    padding: 2% 10% 2% 30%;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.show-episode-container {
+    display: flex;
+    align-items: center;
+    padding: 3%;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-color: gray;
+}
+
+.show-episode-container:hover {
+    background-color: #181818;
+    transition: 0.2s;
 }
