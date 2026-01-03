@@ -1,12 +1,16 @@
 package com.video.api.metadata.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
+import java.io.Serializable;
+
 public record TvEpisode(
-        String air_date,
-        int episode_number,
+        String airDate,
+        @JsonAlias("episode_number") int episodeNumber,
         String name,
         String overview,
         int id,
         int runtime,
-        int season_number,
-        String still_path
-) { }
+        @JsonAlias("season_number") int seasonNumber,
+        @JsonAlias("still_path") String stillPath
+) implements Serializable { }

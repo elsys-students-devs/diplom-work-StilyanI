@@ -1,5 +1,6 @@
 package com.video.api.metadata.controller;
 
+import com.video.api.metadata.model.MediaIdSource;
 import com.video.api.metadata.model.MediaType;
 import com.video.api.metadata.model.TvEpisode;
 import com.video.api.metadata.service.TMDBService;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("metadata")
+@RequestMapping("/metadata")
 public class MetadataController {
     private final TMDBService tmdbService;
 
@@ -21,7 +22,7 @@ public class MetadataController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Media> findById(@PathVariable("id") String id, @RequestParam String source){
+    public ResponseEntity<Media> findById(@PathVariable("id") String id, @RequestParam MediaIdSource source){
         Media result = tmdbService.findById(id, source);
         return ResponseEntity.ok(result);
     }
@@ -38,8 +39,8 @@ public class MetadataController {
         return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/tv/{seriesId}/season/{seasonId}/episode/{episodeId}")
-    public ResponseEntity<TvEpisode> getTvEpisode(@PathVariable("seriesId") int seriesId, @PathVariable("seasonId") int seasonNumber, @PathVariable("episodeId") int episodeNumber){
+    @GetMapping("/tv/{seriesId}/season/{seasonNumber}/episode/{episodeNumber}")
+    public ResponseEntity<TvEpisode> getTvEpisode(@PathVariable("seriesId") int seriesId, @PathVariable("seasonNumber") int seasonNumber, @PathVariable("episodeNumber") int episodeNumber){
         TvEpisode result = tmdbService.getTvEpisode(seriesId, seasonNumber, episodeNumber);
         return ResponseEntity.ok(result);
     }
