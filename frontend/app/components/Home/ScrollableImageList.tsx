@@ -12,7 +12,7 @@ interface ScrollableImageListProps {
 
 export default function ScrollableImageList({
     items, position
-}: ScrollableImageListProps) {
+}: Readonly<ScrollableImageListProps>) {
 
     return (
         <Box

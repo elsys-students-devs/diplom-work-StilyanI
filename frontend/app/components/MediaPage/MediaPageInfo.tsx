@@ -9,7 +9,7 @@ interface MediaPageInfoProps {
     media: Media;
 }
 
-export default function MediaPageInfo({media}: MediaPageInfoProps) {
+export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
     return (
         <Box>
             <Box className={"media-page-hero-backdrop-container"}>

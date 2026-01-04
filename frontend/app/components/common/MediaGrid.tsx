@@ -9,11 +9,11 @@ interface MediaGridProps {
 
 export default function MediaGrid({
     items
-}: MediaGridProps) {
+}: Readonly<MediaGridProps>) {
     return (
         <Grid container spacing={3} sx={{ mx: 5 }}>
-            {items.map((item, index) => (
-                <Grid key={index}>
+            {items.map((item) => (
+                <Grid key={item.id}>
                     <Box
                         display="flex"
                         flexDirection="column"

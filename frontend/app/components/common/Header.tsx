@@ -43,7 +43,7 @@ export default function Header(){
                             <MenuIcon/>
                         </IconButton>
 
-                        <IconButton component={Link} href={"/home"} sx={{visibility: pathname !== "/home" ? "visible" : "hidden"}}>
+                        <IconButton component={Link} href={"/home"} sx={{visibility: pathname === "/home" ? "hidden" : "visible"}}>
                             <HomeIcon/>
                         </IconButton>
 
@@ -73,7 +73,7 @@ export default function Header(){
                 </Toolbar>
             </AppBar>
 
-            <Drawer open={drawerOpen} onClose={toggleDrawer} slotProps={{paper: {sx: {backgroundColor:"gray"}} }}>
+            <Drawer open={drawerOpen} onClose={toggleDrawer} slotProps={{paper: {sx: {backgroundColor:"gray"}} }} onClick={toggleDrawer}>
                 <Box sx={{width: 250}}>
                     <List>
                         {['Home', 'Movies', 'Shows'].map((text) => (
