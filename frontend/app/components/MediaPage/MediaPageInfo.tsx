@@ -12,20 +12,34 @@ interface MediaPageInfoProps {
 export default function MediaPageInfo({media}: MediaPageInfoProps) {
     return (
         <Box>
+            <Box className={"media-page-hero-backdrop-container"}>
+                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropUrl})`}}></Box>
+            </Box>
             <Box
                 className="media-page-hero"
-                sx={{
-                    backgroundImage: `url(${media.backdropUrl})`,
-                }}
             />
-    
-            <Image src={media?.logoUrl} alt={media.title + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
-            <Image src={media.posterUrl} alt={media.title + " poster"} width={500} height={500} style={{position: "absolute", width: "20vw" , left: "4%", top: "20%"}} />
+
+            <Box
+                sx={{
+                    display: {xs: "none", lg: "block"}
+                }}
+            >
+                <Image src={media?.logoUrl} alt={media.title + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
+            </Box>
+
+            <Box
+                sx={{
+                    display: {xs: "none", sm: "block"}
+                }}
+            >
+                <Image src={media.posterUrl} alt={media.title + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
+            </Box>
         
             <Box>
                 <Box
                     className="media-page-info-ribbon"
                 >
+
                     <Box>
                         <Typography fontSize={32}>{media.title}</Typography>
                         <Box sx={{display: "flex", justifyContent: "space-between"}}>
@@ -43,7 +57,7 @@ export default function MediaPageInfo({media}: MediaPageInfoProps) {
                     }
                 </Box>
         
-                <Box sx={{paddingX: "30%", mt: 3}}>
+                <Box sx={{paddingX: {xs: "10%", md: "20%"}, pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600}}>Overview</Typography>
                     <Typography sx={{fontSize: 24, fontWeight: 100}}>{media.description}</Typography>
                 </Box>

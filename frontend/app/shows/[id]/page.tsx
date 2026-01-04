@@ -5,26 +5,30 @@ import Image from "next/image";
 import {Media} from "@/app/services/MediaService";
 import {useParams} from "next/navigation";
 import {getShowById, getShowSeasons} from "@/app/services/ShowService";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import MediaPageInfo from "@/app/components/MediaPage/MediaPageInfo";
 
-export default function showPage(){
+export default function ShowPage(){
     const showId = useParams().id;
     const show = getShowById(showId as string) as Media;
     const seasons = getShowSeasons(showId as string);
-    const [selectedSeason, setSelectedSeason] = useState(seasons[0].number);
+    const [selectedSeason, setSelectedSeason] = useState(0);
+
+    useEffect(() => {
+        if(seasons.length > 0) setSelectedSeason(seasons[0].number);
+    }, []);
 
     const handleChange = (event: SelectChangeEvent<number>) => {
-        setSelectedSeason(event.target.value);
+        setSelectedSeason(Number(event.target.value));
     };
 
     return (
-        <div>
+        <Box sx={{pb: 10}}>
             <MediaPageInfo media={show}/>
 
-            <Box sx={{paddingX: "30%", mb: 10}}>
-                <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", mt: 3}}>
+            <Box sx={{paddingX: {xs: "10%", md: "20%"}}}>
+                <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600, mr: 3}}>Episodes</Typography>
 
                     <FormControl sx={{minWidth: 150, outlineColor: "white"}}>
@@ -50,15 +54,15 @@ export default function showPage(){
                                 }
                             }}
                         >
-                            {seasons.map(season => (
-                                <MenuItem value={season.number}>Season {season.number}</MenuItem>
+                            {selectedSeason != 0 && seasons.map(season => (
+                                <MenuItem key={season.number} value={season.number}>Season {season.number}</MenuItem>
                             ))}
                         </Select>
                     </FormControl>
                 </Box>
 
                 <Box sx={{mt: 3}}>
-                    {seasons[selectedSeason - 1].episodes.map((episode) => (
+                    {selectedSeason != 0 && seasons[selectedSeason - 1].episodes.map((episode) => (
                         <Link href={"/player"} key={episode.number}>
                             <Box className="show-episode-container">
                                 <Typography sx={{fontSize: 32, marginRight: 3}}>{episode.number}</Typography>
@@ -74,6 +78,6 @@ export default function showPage(){
                     ))}
                 </Box>
             </Box>
-        </div>
+        </Box>
     )
 }

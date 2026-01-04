@@ -8,12 +8,12 @@ import {getShows} from "@/app/services/ShowService";
 
 
 export default function MoviesPage(){
+    const shows = getShows();
     const [showList, setShowList] = useState<Media[]>([]);
 
     useEffect(() => {
-        const shows = getShows();
         setShowList(shows);
-    })
+    }, [shows])
 
     return (
         <Box sx={{ mt: 3 }}>

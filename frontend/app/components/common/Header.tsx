@@ -35,40 +35,36 @@ export default function Header(){
                 sx={{backgroundColor: "gray"}}
                 position="sticky"
             >
-                <Toolbar>
-                    <IconButton onClick={toggleDrawer}>
-                        <MenuIcon/>
-                    </IconButton>
+                <Toolbar
+                    sx={{display: "flex", justifyContent: "space-between"}}
+                >
+                    <Box>
+                        <IconButton onClick={toggleDrawer}>
+                            <MenuIcon/>
+                        </IconButton>
 
-                    {pathname !== "/home" &&
-                        (
-                            <IconButton href={"/home"}>
-                                <HomeIcon/>
-                            </IconButton>
-                        )
-                    }
+                        <IconButton component={Link} href={"/home"} sx={{visibility: pathname !== "/home" ? "visible" : "hidden"}}>
+                            <HomeIcon/>
+                        </IconButton>
 
-                    <Box sx={{flexGrow: 1}}/>
+                    </Box>
 
-                    {pathname === "/movies" ?
-                        <Typography className="unselectable-header-button">Movies</Typography>
-                         :
-                        (<Link replace href={"/movies"}>
-                            <Typography className="section-button">Movies</Typography>
-                        </Link>)
-                    }
+                    <Box sx={{display: "flex"}}>
+                        {pathname === "/movies" ?
+                            <Typography className="unselectable-header-button">Movies</Typography>
+                             :
+                            <Typography component={Link} href={"/movies"} className="section-button">Movies</Typography>
+                        }
 
-                    <Box sx={{mx: 2}}/>
+                        <Box sx={{mx: 2}}/>
 
-                    {pathname === "/shows" ?
-                        <Typography className="unselectable-header-button">Shows</Typography>
-                        :
-                        (<Link replace href={"/shows"}>
-                            <Typography className="section-button">Shows</Typography>
-                        </Link>)
-                    }
+                        {pathname === "/shows" ?
+                            <Typography className="unselectable-header-button">Shows</Typography>
+                            :
+                            <Typography component={Link} href={"/shows"} className="section-button">Shows</Typography>
+                        }
 
-                    <Box sx={{flexGrow: 1}}/>
+                    </Box>
 
                     <IconButton>
                         <AccountCircleIcon/>
@@ -82,7 +78,7 @@ export default function Header(){
                     <List>
                         {['Home', 'Movies', 'Shows'].map((text) => (
                             <ListItem key={text}>
-                                <ListItemButton href={"/" + text.toLowerCase()}>
+                                <ListItemButton component={Link} href={"/" + text.toLowerCase()}>
                                     <ListItemIcon>
                                         {
                                             {
@@ -100,7 +96,7 @@ export default function Header(){
                         <Divider/>
 
                         <ListItem key={'dashboard'}>
-                            <ListItemButton href={"/dashboard"}>
+                            <ListItemButton component={Link} href={"/dashboard"}>
                                 <ListItemIcon>
                                     <DashboardIcon/>
                                 </ListItemIcon>
