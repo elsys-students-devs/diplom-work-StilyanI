@@ -1,0 +1,109 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  scrollbar-gutter: stable both-edges;
+  overflow-y: scroll;
+}
+
+.section-button {
+    font-weight: 600;
+    color: black;
+    transition: 0.5s;
+}
+.section-button:hover {
+    color: white;
+    transition: 0.2s;
+}
+
+.media-image {
+    transition: 0.2s;
+    border-radius: 6px;
+}
+
+.media-image:hover {
+    transform: scale(1.05);
+    transition: 0.5s;
+}
+
+.unselectable-header-button {
+    color: white;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.media-page-hero {
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    height: 40vh;
+    position: relative;
+    z-index: -1;
+}
+
+.media-page-hero-backdrop-image {
+    background-repeat: no-repeat;
+    background-size: cover;
+    bottom: 0;
+    contain: layout style;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    filter: blur(4px);
+}
+
+.media-page-hero-backdrop-container {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: -1;
+    max-height: 50vh;
+}
+
+.media-page-info-ribbon {
+    background-color: #202020;
+    padding: 2% 10% 2% 30%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    max-height: 200px;
+}
+
+.show-episode-container {
+    display: flex;
+    align-items: center;
+    padding: 3%;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-color: gray;
+}
+
+.show-episode-container:hover {
+    background-color: #181818;
+    transition: 0.2s;
+}
