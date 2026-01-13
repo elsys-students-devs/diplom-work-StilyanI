@@ -1,9 +1,13 @@
 package com.video.api.video.service;
 
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+import java.util.List;
+import java.util.Map;
 
 public interface VideoService {
-    ResponseEntity<StreamingResponseBody> getVideoByPath(String path, HttpHeaders headers);
+    ResponseEntity<ResourceRegion> getVideoByFileName(String fileName, HttpHeaders headers);
+    Map<String, List<Map<String, String>>> getFoldersList();
 }

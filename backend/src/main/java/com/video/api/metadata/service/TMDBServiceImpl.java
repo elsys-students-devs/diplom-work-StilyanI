@@ -1,6 +1,6 @@
 package com.video.api.metadata.service;
 
-import com.video.api.metadata.exception.TMDBResponseException;
+import com.video.api.common.exception.TMDBResponseException;
 import com.video.api.metadata.model.Media;
 import com.video.api.metadata.model.MediaIdSource;
 import com.video.api.metadata.model.MediaType;

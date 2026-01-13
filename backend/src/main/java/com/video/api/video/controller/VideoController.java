@@ -1,6 +1,8 @@
 package com.video.api.video.controller;
 
 import com.video.api.video.service.VideoService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,8 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @RestController
 @RequestMapping("/video")
 public class VideoController {
@@ -19,8 +24,13 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @GetMapping("/{path}")
-    public ResponseEntity<StreamingResponseBody> getVideoByPath(@PathVariable String path, @RequestHeader HttpHeaders headers) {
-        return videoService.getVideoByPath(path, headers);
+    @GetMapping("/list")
+    public Map<String, List<Map<String, String>>>  getFoldersList() {
+        return videoService.getFoldersList();
+    }
+
+    @GetMapping("/{fileName}")
+    public ResponseEntity<ResourceRegion> getVideoByFileName(@PathVariable String fileName, @RequestHeader HttpHeaders headers) {
+        return videoService.getVideoByFileName(fileName, headers);
     }
 }

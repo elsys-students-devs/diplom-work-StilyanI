@@ -1,49 +1,39 @@
 package com.video.api.video.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.support.ResourceRegion;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.video.api.video.util.FileBrowsingUtils.parseDirectories;
 
 @Slf4j
 @Service
 public class VideoServiceImpl implements VideoService {
 
+    @Value("${video.storage.path}")
+    private String videoDirectory;
+
     @Override
-    public ResponseEntity<StreamingResponseBody> getVideoByPath(String filePath, HttpHeaders headers) {
-        Path videoFilePath = Paths.get(filePath);
+    public ResponseEntity<ResourceRegion> getVideoByFileName(String fileName, HttpHeaders headers) {
+        return null;
+    }
 
-        if(!Files.isRegularFile(videoFilePath)){
-            throw new RuntimeException("File not found!");
-        }
+    @Override
+    public Map<String, List<Map<String, String>>> getFoldersList() {
+        List<Map<String, String>> parsedMovieDirectories = parseDirectories(videoDirectory + "/Movies");
+        List<Map<String, String>> parsedShowDirectories = parseDirectories(videoDirectory + "/Shows");
 
-        StreamingResponseBody stream = outputStream -> {
-            try {
-                final InputStream inputStream = new FileInputStream(videoFilePath.toFile());
+        Map<String, List<Map<String, String>>> result = new HashMap<>();
+        result.put("Movies", parsedMovieDirectories);
+        result.put("Shows", parsedShowDirectories);
 
-                byte[] bytes = new byte[1024];
-                int length;
-                while ((length = inputStream.read(bytes)) >= 0) {
-                    outputStream.write(bytes, 0, length);
-                }
-                inputStream.close();
-                outputStream.flush();
-
-            } catch (final Exception e) {
-                throw  new RuntimeException(e);
-            }
-        };
-
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.add("Content-Length", Long.toString(videoFilePath.toFile().length()));
-
-        return ResponseEntity.ok().headers(responseHeaders).body(stream);
+        return result;
     }
 }

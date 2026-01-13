@@ -1,4 +1,4 @@
-package com.video.api.metadata.exception;
+package com.video.api.common.exception;
 
 import lombok.Getter;
 import lombok.Setter;
