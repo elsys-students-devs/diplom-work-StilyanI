@@ -2,11 +2,15 @@ package com.video.api.video.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,9 +24,33 @@ public class VideoServiceImpl implements VideoService {
     @Value("${video.storage.path}")
     private String videoDirectory;
 
+    @Value("${hls.storage.path}")
+    private String hlsDirectory;
+
+    private void segmentizeVideo(String fileName) {
+        //TODO
+    }
+
     @Override
-    public ResponseEntity<ResourceRegion> getVideoByFileName(String fileName, HttpHeaders headers) {
-        return null;
+    public ResponseEntity<Resource> getVideoPlaylist(String fileName) {
+        Path path = Paths.get(hlsDirectory, fileName, "master.m3u8");
+        if(!Files.exists(path)){
+            segmentizeVideo(fileName);
+        }
+
+        Resource playlistResource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE,"application/vnd.apple.mpegurl").body(playlistResource);
+    }
+
+    @Override
+    public ResponseEntity<Resource> getVideoSegment(String fileName, String segment) {
+        Path path = Paths.get(hlsDirectory, fileName, segment + ".ts");
+        if(!Files.exists(path)){
+            segmentizeVideo(fileName);
+        }
+
+        Resource segmentResource = new FileSystemResource(path);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "video/MP2T").body(segmentResource);
     }
 
     @Override
