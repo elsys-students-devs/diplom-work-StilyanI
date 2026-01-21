@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,15 +29,75 @@ public class VideoServiceImpl implements VideoService {
     @Value("${hls.storage.path}")
     private String hlsDirectory;
 
-    private void segmentizeVideo(String fileName) {
-        //TODO
+    public void segmentizeVideo(String fileName) {
+        Path videoPath = Paths.get(videoDirectory, fileName);
+        try{
+            Path outputPath = Paths.get(hlsDirectory, fileName.substring(0, fileName.lastIndexOf('.')));
+            Files.createDirectories(outputPath);
+
+            for (int i = 0; i < 3; i++) {
+                Files.createDirectories(outputPath.resolve("v" + i));
+            }
+
+            String cmd = "ffmpeg " +
+                    "-i " + videoPath.toString().replace("\\", "/") + " " +
+
+                    "-map 0:v:0 -map 0:a:0 " +
+                    "-s:v:0 1920x1080 " +
+                    "-c:v:0 libx264 " +
+                    "-b:v:0 5000k " +
+                    "-c:a:0 aac " +
+                    "-b:a:0 192k " +
+
+                    "-map 0:v:0 -map 0:a:0 " +
+                    "-s:v:1 1280x720 " +
+                    "-c:v:1 libx264 " +
+                    "-b:v:1 2800k " +
+                    "-c:a:1 aac " +
+                    "-b:a:1 128k " +
+
+                    "-map 0:v:0 -map 0:a:0 " +
+                    "-s:v:2 640x360 " +
+                    "-c:v:2 libx264 " +
+                    "-b:v:2 800k " +
+                    "-c:a:2 aac " +
+                    "-b:a:2 96k " +
+
+                    "-f hls " +
+                    "-hls_time 6 " +
+                    "-hls_playlist_type vod " +
+                    "-hls_segment_filename " + outputPath.toString().replace("\\", "/") + "/v%v/segment%03d.ts" + " " +
+                    "-master_pl_name master.m3u8 " +
+                    "-var_stream_map \"v:0,a:0 v:1,a:1 v:2,a:2\" " +
+                    outputPath.toString().replace("\\", "/") + "/v%v/playlist.m3u8";
+
+            ProcessBuilder processBuilder;
+            if (System.getProperty("os.name").toLowerCase().contains("win")) {
+                processBuilder = new ProcessBuilder("cmd.exe", "/c", cmd);
+            } else {
+                processBuilder = new ProcessBuilder("/bin/bash", "-c", cmd);
+            }
+            processBuilder.inheritIO();
+
+            log.info("Starting video processing...");
+            Process process = processBuilder.start();
+            log.info("Ended video process.");
+
+            int exit = process.waitFor();
+            if (exit != 0) {
+                throw new RuntimeException("video processing failed!!");
+            }
+
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public ResponseEntity<Resource> getVideoPlaylist(String fileName) {
-        Path path = Paths.get(hlsDirectory, fileName, "master.m3u8");
+    public ResponseEntity<Resource> getVideoPlaylist(String videoId) {
+        Path path = Paths.get(hlsDirectory, videoId, "master.m3u8");
         if(!Files.exists(path)){
-            segmentizeVideo(fileName);
+            segmentizeVideo(videoId);
         }
 
         Resource playlistResource = new FileSystemResource(path);
@@ -43,14 +105,16 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public ResponseEntity<Resource> getVideoSegment(String fileName, String segment) {
-        Path path = Paths.get(hlsDirectory, fileName, segment + ".ts");
-        if(!Files.exists(path)){
-            segmentizeVideo(fileName);
-        }
+    public ResponseEntity<Resource> getVideoHlsFile(String videoId, String quality, String hlsFileName) {
+        Path path = Paths.get(hlsDirectory, videoId, "v" + quality, hlsFileName);
 
-        Resource segmentResource = new FileSystemResource(path);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "video/MP2T").body(segmentResource);
+        Resource hlsResource = new FileSystemResource(path);
+
+        MediaType mediaType = hlsFileName.endsWith(".m3u8")
+                ? MediaType.parseMediaType("application/vnd.apple.mpegurl")
+                : MediaType.parseMediaType("video/mp2t");
+
+        return ResponseEntity.ok().contentType(mediaType).body(hlsResource);
     }
 
     @Override

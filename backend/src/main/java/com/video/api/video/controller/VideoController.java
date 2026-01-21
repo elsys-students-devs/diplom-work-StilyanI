@@ -27,13 +27,13 @@ public class VideoController {
         return ResponseEntity.ok(videoService.getFoldersList());
     }
 
-    @GetMapping("/{fileName}/master.m3u8")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String fileName) {
-        return videoService.getVideoPlaylist(fileName);
+    @GetMapping("/{videoId}/master.m3u8")
+    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId) {
+        return videoService.getVideoPlaylist(videoId);
     }
 
-    @GetMapping("/{fileName}/{segment}.ts")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String fileName, @PathVariable String segment) {
-        return videoService.getVideoSegment(fileName, segment);
+    @GetMapping("/{videoId}/v{quality}/{hlsFileName}")
+    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId, @PathVariable String quality, @PathVariable String hlsFileName) {
+        return videoService.getVideoHlsFile(videoId, quality, hlsFileName);
     }
 }
