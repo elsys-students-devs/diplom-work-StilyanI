@@ -1,4 +1,4 @@
-package com.video.api.common.exception;
+package com.video.api.metadata.exception;
 
 import lombok.Getter;
 import okhttp3.Response;

@@ -28,12 +28,17 @@ public class VideoController {
     }
 
     @GetMapping("/{videoId}/master.m3u8")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId) {
-        return videoService.getVideoPlaylist(videoId);
+    public ResponseEntity<Resource> getVideoMasterPlaylist(@PathVariable String videoId) {
+        return videoService.getVideoMasterPlaylist(videoId);
     }
 
-    @GetMapping("/{videoId}/v{quality}/{hlsFileName}")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId, @PathVariable String quality, @PathVariable String hlsFileName) {
-        return videoService.getVideoHlsFile(videoId, quality, hlsFileName);
+    @GetMapping("/{videoId}/{quality}/playlist.m3u8")
+    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId, @PathVariable String quality) {
+        return videoService.getVideoPlaylist(videoId, quality);
+    }
+
+    @GetMapping("/{videoId}/{quality}/segment{segmentNumber}.ts")
+    public ResponseEntity<Resource>  getVideoSegment(@PathVariable String videoId, @PathVariable String quality, @PathVariable Integer segmentNumber) {
+        return videoService.getVideoSegment(videoId, quality, segmentNumber);
     }
 }

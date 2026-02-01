@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public interface VideoService {
-    ResponseEntity<Resource> getVideoPlaylist(String videoId);
-    ResponseEntity<Resource> getVideoHlsFile(String videoId, String quality, String hlsFileName);
     Map<String, List<Map<String, String>>> getFoldersList();
+
+    ResponseEntity<Resource> getVideoMasterPlaylist(String videoId);
+    ResponseEntity<Resource> getVideoPlaylist(String videoId, String quality);
+    ResponseEntity<Resource> getVideoSegment(String videoId, String quality, Integer segmentNumber);
 }

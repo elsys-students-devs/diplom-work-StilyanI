@@ -1,5 +1,10 @@
 package com.video.api.common.exception;
 
+import com.video.api.metadata.exception.TMDBResponseException;
+import com.video.api.video.exception.InvalidStreamQualityException;
+import com.video.api.video.exception.PlaylistFailedCreationException;
+import com.video.api.video.exception.TranscodingFailedException;
+import com.video.api.video.exception.VideoFileNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +62,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.BAD_REQUEST.value(),
-                "Malformed JSON request body"
+                "Malformed JSON request body: " + ex.getMessage()
         );
 
         return ResponseEntity
@@ -79,6 +84,54 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(InvalidStreamQualityException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidStreamQualityException(InvalidStreamQualityException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
+
+    @ExceptionHandler(PlaylistFailedCreationException.class)
+    public ResponseEntity<ErrorResponse> handlePlaylistFailedCreationException(PlaylistFailedCreationException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage()
+        );
+
+        return  ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
+    }
+
+    @ExceptionHandler(TranscodingFailedException.class)
+    public ResponseEntity<ErrorResponse> handleTranscodingFailedException(TranscodingFailedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage()
+        );
+
+        return  ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(error);
+    }
+
+    @ExceptionHandler(VideoFileNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleVideoFileNotFoundException(VideoFileNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+
+        return  ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(error);
     }
 
