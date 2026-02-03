@@ -1,5 +1,6 @@
 package com.video.api.video.util;
 
+import com.video.api.video.exception.PlaylistFailedCreationException;
 import com.video.api.video.exception.TranscodingFailedException;
 
 import java.io.IOException;
@@ -27,7 +28,11 @@ public class VideoUtils {
             throw new TranscodingFailedException(e.getMessage());
         }
 
-        return Double.parseDouble(output);
+        try {
+            return Double.parseDouble(output);
+        } catch (NumberFormatException _) {
+            throw new PlaylistFailedCreationException("Failed to parse video duration from ffprobe output: '" + output + "'");
+        }
     }
 
     public static int scanHighestSegment(Path outputDir, int seekThresholdSegments) {
