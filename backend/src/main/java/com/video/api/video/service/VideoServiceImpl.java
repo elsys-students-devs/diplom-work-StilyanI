@@ -211,7 +211,7 @@ public class VideoServiceImpl implements VideoService {
             sb.append("#EXTINF:");
             if(i == numOfSegments - 1) {
                 sb.append(duration - i*10).append(",\n");
-            }else{
+            } else {
                 sb.append(videoProperties.getSegmentDuration()).append(".0,\n");
             }
             sb.append(String.format("segment%03d.ts\n", i));
