@@ -1,5 +1,6 @@
 package com.video.api.common.exception;
 
+import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
 import com.video.api.video.exception.InvalidStreamQualityException;
 import com.video.api.video.exception.PlaylistFailedCreationException;
@@ -26,6 +27,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatusCode.valueOf(ex.getResponse().code()))
+                .body(error);
+    }
+
+    @ExceptionHandler(ResponseReadingFailureException.class)
+    public ResponseEntity<ErrorResponse> handleResponseReadingFailure(ResponseReadingFailureException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
     }
 
@@ -132,18 +145,6 @@ public class GlobalExceptionHandler {
 
         return  ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(error);
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        ErrorResponse error = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage()
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(error);
     }
 

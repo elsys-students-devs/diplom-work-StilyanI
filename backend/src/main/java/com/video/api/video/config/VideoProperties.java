@@ -11,4 +11,5 @@ public class VideoProperties {
     String storagePath;
     String hlsOutputPath;
     Integer segmentDuration;
+    Integer seekThresholdSegments;
 }

@@ -10,8 +10,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class FileBrowsingUtils {
+
+    private FileBrowsingUtils() {}
+
     public static Map<String, String> parseDirectoryName(String directoryName) {
-        String title = directoryName, year = null, id = null;
+        String title = directoryName;
+        String year = null;
+        String id = null;
 
         Pattern pattern = Pattern.compile("^(.+?)(?:\\s*\\((\\d{4})\\))?(?:\\s*\\[(.+?)])?$");
         Matcher matcher = pattern.matcher(directoryName);

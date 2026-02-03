@@ -26,8 +26,6 @@ import static com.video.api.video.util.VideoUtils.scanHighestSegment;
 public class TranscodingService {
     private final VideoProperties videoProperties;
 
-    private static final int SEEK_THRESHOLD_SEGMENTS = 3;
-
     public TranscodingService(VideoProperties videoProperties) {
         this.videoProperties = videoProperties;
     }
@@ -47,26 +45,23 @@ public class TranscodingService {
 
     private final ConcurrentHashMap<String, TranscodeJob> jobMap = new ConcurrentHashMap<>();
 
-    public synchronized void ensureTranscoding(Path sourcePath, Path outputDir, StreamQuality profile, int requestedSegment) {
+    public void ensureTranscoding(Path sourcePath, Path outputDir, StreamQuality profile, int requestedSegment) {
         String key = jobKey(sourcePath, profile);
-        TranscodeJob existing = jobMap.get(key);
+        jobMap.compute(key, (_, existing) -> {
+            if (existing != null && !existing.failed && existing.process.isAlive()) {
+                existing.highestSegmentOnDisk = scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments());
 
-        if (existing != null && !existing.failed && existing.process.isAlive()) {
-            existing.highestSegmentOnDisk = scanHighestSegment(outputDir);
-
-            if ((requestedSegment > existing.highestSegmentOnDisk + SEEK_THRESHOLD_SEGMENTS && requestedSegment > existing.startSegment + SEEK_THRESHOLD_SEGMENTS) || requestedSegment < existing.startSegment) {
-                log.info("Seek detected: key={}, highestOnDisk={}, requested={}", key, existing.highestSegmentOnDisk, requestedSegment);
-                killProcess(key);
-            } else {
-                return;
+                if ((requestedSegment > existing.highestSegmentOnDisk + videoProperties.getSeekThresholdSegments() && requestedSegment > existing.startSegment + videoProperties.getSeekThresholdSegments()) || requestedSegment < existing.startSegment) {
+                    log.info("Seek detected: key={}, highestOnDisk={}, requested={}", key, existing.highestSegmentOnDisk, requestedSegment);
+                    killProcess(key);
+                    return launchFfmpeg(sourcePath, outputDir, profile, requestedSegment);
+                } else {
+                    return existing;
+                }
             }
-        }
 
-        jobMap.remove(key);
-        TranscodeJob newJob = launchFfmpeg(sourcePath, outputDir, profile, requestedSegment);
-        if (newJob != null) {
-            jobMap.put(key, newJob);
-        }
+            return launchFfmpeg(sourcePath, outputDir, profile, requestedSegment);
+        });
     }
 
     public boolean isSegmentReady(Path segmentPath) {
@@ -152,16 +147,18 @@ public class TranscodingService {
             pb.redirectErrorStream(true);
             Process proc = pb.start();
 
-            int currentHighest = scanHighestSegment(outputDir);
+            int currentHighest = scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments());
 
             String jobKey = jobKey(sourcePath, profile);
-            new Thread(() -> {
+            Thread.startVirtualThread(() -> {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
                     String line;
                     while ((line = reader.readLine()) != null) {
                         log.error("[FFmpeg:{}] {}", jobKey, line);
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception _) {
+                    log.error("Couldn't read error from FFmpeg process key={}", jobKey);
+                }
 
                 try {
                     int exit = proc.waitFor();
@@ -171,16 +168,16 @@ public class TranscodingService {
                     } else {
                         log.info("FFmpeg completed successfully for key={}", jobKey);
                     }
-                } catch (InterruptedException e) {
+                } catch (InterruptedException _) {
                     Thread.currentThread().interrupt();
                 }
-            }, "ffmpeg-drain-" + jobKey).start();
+            });
 
             log.info("Started FFmpeg: key={}, startSegment={}, seekTo={}s", jobKey, startSegment, seekSeconds);
             return new TranscodeJob(proc, startSegment, currentHighest);
 
-        } catch (Exception e) {
-            log.error("Failed to start FFmpeg for source={}, quality={}", sourcePath, profile.name(), e);
+        } catch (Exception _) {
+            log.error("Failed to start FFmpeg for source={}, quality={}", sourcePath, profile.name());
             return null;
         }
     }

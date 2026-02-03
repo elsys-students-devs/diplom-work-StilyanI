@@ -1,14 +1,14 @@
 package com.video.api.video.util;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.video.api.video.exception.TranscodingFailedException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class VideoUtils {
-    @Value("${video.segment-duration}")
-    private static int segmentDuration;
+
+    private VideoUtils() {}
 
     public static double getVideoDuration(Path sourcePath){
         ProcessBuilder pb = new ProcessBuilder(
@@ -24,19 +24,19 @@ public class VideoUtils {
             Process process = pb.start();
             output = new String(process.getInputStream().readAllBytes()).trim();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new TranscodingFailedException(e.getMessage());
         }
 
         return Double.parseDouble(output);
     }
 
-    public static int scanHighestSegment(Path outputDir) {
+    public static int scanHighestSegment(Path outputDir, int seekThresholdSegments) {
         int highest = -1;
         for (int i = 0; ; i++) {
             if (Files.exists(segmentPath(outputDir, i))) {
                 highest = i;
             } else {
-                if(i > highest + segmentDuration + 10) break;
+                if(i > highest + seekThresholdSegments + 10) break;
             }
         }
         return highest;

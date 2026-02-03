@@ -17,6 +17,6 @@ public record StreamQuality(
     ));
 
     public static StreamQuality byName(String name){
-        return QUALITY_LIST.stream().filter(q -> q.name().equals(name)).findFirst().orElse(null);
+        return QUALITY_LIST.stream().filter(q -> q.name().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 }

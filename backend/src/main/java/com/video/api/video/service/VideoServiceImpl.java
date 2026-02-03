@@ -9,8 +9,6 @@ import com.video.api.video.model.StreamQuality;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Files;
@@ -43,7 +41,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public ResponseEntity<Resource> getVideoMasterPlaylist(String videoId) {
+    public Resource getVideoMasterPlaylist(String videoId) {
         log.info("Getting video master playlist for video id {}", videoId);
         Path sourcePath = resolveSourceVideo(videoId);
 
@@ -56,42 +54,37 @@ public class VideoServiceImpl implements VideoService {
         if(!Files.exists(masterPath)) {
             String masterContent = StreamQuality.QUALITY_LIST.stream()
                     .map(p -> {
-                        int videoBandwidthKbps = Integer.parseInt(p.videoBitrate().replace("k", ""));
-                        int audioBandwidthKbps = Integer.parseInt(p.audioBitrate().replace("k", ""));
-                        int totalBandwidth = (videoBandwidthKbps + audioBandwidthKbps) * 1000;
+                        try {
+                            int videoBandwidthKbps = Integer.parseInt(p.videoBitrate().replace("k", ""));
+                            int audioBandwidthKbps = Integer.parseInt(p.audioBitrate().replace("k", ""));
+                            int totalBandwidth = (videoBandwidthKbps + audioBandwidthKbps) * 1000;
 
-                        return "#EXT-X-STREAM-INF:BANDWIDTH=" + totalBandwidth
-                                + ",RESOLUTION=" + p.width() + "x" + p.height() + "\n"
-                                + p.name() + "/playlist.m3u8";
+                            return "#EXT-X-STREAM-INF:BANDWIDTH=" + totalBandwidth
+                                    + ",RESOLUTION=" + p.width() + "x" + p.height() + "\n"
+                                    + p.name() + "/playlist.m3u8";
+                        }catch (NumberFormatException _) {
+                            throw new PlaylistFailedCreationException("Failed to parse bitrate while creating master playlist");
+                        }
                     })
                     .collect(Collectors.joining("\n", "#EXTM3U\n", "\n"));
 
             try {
                 Files.createDirectories(masterPath.getParent());
                 Files.writeString(masterPath, masterContent);
-            } catch (Exception e) {
+            } catch (Exception _) {
                 throw new PlaylistFailedCreationException("Failed to create master playlist for videoId=" + videoId);
             }
         }
 
-        return ResponseEntity.ok()
-                .contentType(new MediaType("application", "x-mpegURL"))
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .body(new FileSystemResource(masterPath));
+        return new FileSystemResource(masterPath);
     }
 
     @Override
-    public ResponseEntity<Resource> getVideoPlaylist(String videoId, String quality) {
+    public Resource getVideoPlaylist(String videoId, String quality) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
-        if (sourcePath == null) {
-            throw new VideoFileNotFoundException("Source video not found for videoId=" + videoId);
-        }
-        if(streamQuality == null) {
-            throw new InvalidStreamQualityException("Given stream quality(" + quality + ") is not valid. Available stream qualities are: " + StreamQuality.QUALITY_LIST.stream().map(StreamQuality::name).toList());
-        }
+        verifyRequestParams(videoId, quality, sourcePath, streamQuality);
 
         Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), videoId, quality);
         Path playlistPath = outputDir.resolve("playlist-temp.m3u8");
@@ -100,7 +93,7 @@ public class VideoServiceImpl implements VideoService {
             transcodingService.ensureTranscoding(sourcePath, outputDir, streamQuality, 0);
 
             long deadline = System.currentTimeMillis() + SEGMENT_TIMEOUT_MS;
-            while (scanHighestSegment(outputDir) < 0) {
+            while (scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments()) < 0) {
 
                 if (transcodingService.hasJobFailed(sourcePath, quality)) {
                     throw new TranscodingFailedException("Transcoding failed for videoId=" + videoId);
@@ -114,29 +107,20 @@ public class VideoServiceImpl implements VideoService {
             try {
                 String playlistContent = buildPlaylist(sourcePath);
                 Files.writeString(playlistPath, playlistContent);
-            } catch (Exception e) {
+            } catch (Exception _) {
                 throw new PlaylistFailedCreationException("Failed to create variant playlist for videoId=" + videoId + ", quality=" + quality);
             }
         }
 
-        return ResponseEntity.ok()
-                .contentType(new MediaType("application", "x-mpegURL"))
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .body(new FileSystemResource(playlistPath));
+        return new FileSystemResource(playlistPath);
     }
 
     @Override
-    public ResponseEntity<Resource> getVideoSegment(String videoId, String quality, Integer segmentNumber) {
+    public Resource getVideoSegment(String videoId, String quality, Integer segmentNumber) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
-        if (sourcePath == null) {
-            throw new VideoFileNotFoundException("Source video not found for videoId=" + videoId);
-        }
-        if(streamQuality == null) {
-            throw new InvalidStreamQualityException("Given stream quality(" + quality + ") is not valid. Available stream qualities are: " + StreamQuality.QUALITY_LIST.stream().map(StreamQuality::name).toList());
-        }
+        verifyRequestParams(videoId, quality, sourcePath, streamQuality);
 
         Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), videoId, quality);
         Path segmentPath = segmentPath(outputDir, segmentNumber);
@@ -156,11 +140,16 @@ public class VideoServiceImpl implements VideoService {
             }
         }
 
-        return ResponseEntity.ok()
-                .contentType(new MediaType("video", "mp2t"))
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET")
-                .body(new FileSystemResource(segmentPath));
+        return new FileSystemResource(segmentPath);
+    }
+
+    private void verifyRequestParams(String videoId, String quality, Path sourcePath, StreamQuality sq){
+        if (sourcePath == null) {
+            throw new VideoFileNotFoundException("Source video not found for videoId=" + videoId);
+        }
+        if(sq == null) {
+            throw new InvalidStreamQualityException("Given stream quality(" + quality + ") is not valid. Available stream qualities are: " + StreamQuality.QUALITY_LIST.stream().map(StreamQuality::name).toList());
+        }
     }
 
     @Override
@@ -210,11 +199,11 @@ public class VideoServiceImpl implements VideoService {
         for (int i = 0; i < numOfSegments; i++) {
             sb.append("#EXTINF:");
             if(i == numOfSegments - 1) {
-                sb.append(duration - i*10).append(",\n");
+                sb.append(duration - i * videoProperties.getSegmentDuration()).append(",\n");
             } else {
                 sb.append(videoProperties.getSegmentDuration()).append(".0,\n");
             }
-            sb.append(String.format("segment%03d.ts\n", i));
+            sb.append(String.format("segment%03d.ts%n", i));
         }
 
         sb.append("#EXT-X-ENDLIST\n");
@@ -223,8 +212,8 @@ public class VideoServiceImpl implements VideoService {
 
     private static void sleep() {
         try {
-            Thread.sleep((long) VideoServiceImpl.POLL_INTERVAL_MS);
-        } catch (InterruptedException e) {
+            Thread.sleep(VideoServiceImpl.POLL_INTERVAL_MS);
+        } catch (InterruptedException _) {
             Thread.currentThread().interrupt();
         }
     }
