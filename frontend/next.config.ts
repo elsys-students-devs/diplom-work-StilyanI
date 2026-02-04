@@ -1,18 +1,13 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  async redirects(){
-    return [
-      {
-        source:'/',
-        destination:'/home',
-        permanent: true
-      }
-    ]
-  }
-};
-
 module.exports = {
+    async redirects(){
+        return [
+            {
+                source:'/',
+                destination:'/home',
+                permanent: true
+            }
+        ]
+    },
     images: {
         remotePatterns: [
             {
@@ -24,5 +19,3 @@ module.exports = {
         ],
     },
 }
-
-export default nextConfig;

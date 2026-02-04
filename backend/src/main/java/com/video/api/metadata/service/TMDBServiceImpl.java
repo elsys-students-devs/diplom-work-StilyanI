@@ -1,5 +1,6 @@
 package com.video.api.metadata.service;
 
+import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
 import com.video.api.metadata.model.Media;
 import com.video.api.metadata.model.MediaIdSource;
@@ -11,7 +12,6 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.json.JsonMapper;
@@ -23,12 +23,16 @@ import java.util.Objects;
 @Service
 public class TMDBServiceImpl implements TMDBService {
 
-    @Autowired private final OkHttpClient client;
-    @Autowired private JsonMapper jsonMapper;
-    private static final String BASE_URL = "https://api.themoviedb.org/3";
+    private final OkHttpClient client;
+    private final JsonMapper jsonMapper;
 
-    public TMDBServiceImpl(OkHttpClient client) {
+    private static final String BASE_URL = "https://api.themoviedb.org/3";
+    private static final String LANGUAGE = "language";
+    private static final String EN_US = "en-US";
+
+    public TMDBServiceImpl(OkHttpClient client, JsonMapper jsonMapper) {
         this.client = client;
+        this.jsonMapper = jsonMapper;
     }
 
     private <T> T execute(Request request, Class<T> responseType) {
@@ -42,7 +46,7 @@ public class TMDBServiceImpl implements TMDBService {
             return jsonMapper.readValue(body, responseType);
 
         } catch (IOException e) {
-            throw new RuntimeException("TMDB request failed", e);
+            throw new ResponseReadingFailureException(e.getMessage());
         }
     }
 
@@ -61,7 +65,7 @@ public class TMDBServiceImpl implements TMDBService {
                 .addPathSegment(mediaType.getType())
                 .addQueryParameter("query", name)
                 .addQueryParameter("include_adult", "false")
-                .addQueryParameter("language", "en-US")
+                .addQueryParameter(LANGUAGE, EN_US)
                 .addQueryParameter("page", "1");
         if (otherParameters != null) {
             otherParameters.forEach(urlBuilder::addQueryParameter);
@@ -105,7 +109,7 @@ public class TMDBServiceImpl implements TMDBService {
                 .addPathSegment("find")
                 .addPathSegment(id)
                 .addQueryParameter("external_source", source.getSource())
-                .addQueryParameter("language", "en-US")
+                .addQueryParameter(LANGUAGE, EN_US)
                 .build();
 
         Request request = buildRequest(url);
@@ -129,7 +133,7 @@ public class TMDBServiceImpl implements TMDBService {
                 .addPathSegment(String.valueOf(seasonNumber))
                 .addPathSegment("episode")
                 .addPathSegment(String.valueOf(episodeNumber))
-                .addQueryParameter("language", "en-US")
+                .addQueryParameter(LANGUAGE, EN_US)
                 .build();
 
         Request request = buildRequest(url);

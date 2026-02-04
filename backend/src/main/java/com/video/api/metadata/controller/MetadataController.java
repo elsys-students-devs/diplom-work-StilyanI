@@ -22,7 +22,7 @@ public class MetadataController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Media> findById(@PathVariable("id") String id, @RequestParam MediaIdSource source){
+    public ResponseEntity<Media> findById(@PathVariable String id, @RequestParam MediaIdSource source){
         Media result = tmdbService.findById(id, source);
         return ResponseEntity.ok(result);
     }
@@ -40,7 +40,7 @@ public class MetadataController {
     }
 
     @GetMapping("/tv/{seriesId}/season/{seasonNumber}/episode/{episodeNumber}")
-    public ResponseEntity<TvEpisode> getTvEpisode(@PathVariable("seriesId") int seriesId, @PathVariable("seasonNumber") int seasonNumber, @PathVariable("episodeNumber") int episodeNumber){
+    public ResponseEntity<TvEpisode> getTvEpisode(@PathVariable int seriesId, @PathVariable int seasonNumber, @PathVariable int episodeNumber){
         TvEpisode result = tmdbService.getTvEpisode(seriesId, seasonNumber, episodeNumber);
         return ResponseEntity.ok(result);
     }
