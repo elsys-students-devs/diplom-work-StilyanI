@@ -7,14 +7,14 @@ import {
     List,
     ListItem,
     ListItemButton,
-    ListItemIcon, ListItemText,
+    ListItemIcon, ListItemText, Menu, MenuItem,
     Toolbar,
     Typography
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import {useState} from "react";
+import {useState, MouseEvent} from "react";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import TvIcon from "@mui/icons-material/Tv";
@@ -24,6 +24,15 @@ import {usePathname} from "next/navigation";
 export default function Header(){
     const pathname = usePathname();
     const [drawerOpen, setDrawerOpen] = useState(false);
+
+    const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
+    const accountMenuOpen = Boolean(accountMenuAnchorEl);
+    const handleAccountClick = (event: MouseEvent<HTMLElement>) => {
+        setAccountMenuAnchorEl(event.currentTarget);
+    };
+    const handleAccountClose = () => {
+        setAccountMenuAnchorEl(null);
+    };
 
     function toggleDrawer() {
         setDrawerOpen(!drawerOpen);
@@ -68,15 +77,21 @@ export default function Header(){
 
                         </Box>
 
-                        <IconButton>
+                        <IconButton
+                            onClick={handleAccountClick}
+                        >
                             <AccountCircleIcon/>
                         </IconButton>
 
                     </Toolbar>
                 </AppBar>
 
-                <Drawer open={drawerOpen} onClose={toggleDrawer} slotProps={{paper: {sx: {backgroundColor: "gray"}}}}
-                        onClick={toggleDrawer}>
+                <Drawer
+                    open={drawerOpen}
+                    onClose={toggleDrawer}
+                    onClick={toggleDrawer}
+                    slotProps={{paper: {sx: {backgroundColor: "gray"}}}}
+                >
                     <Box sx={{width: 250}}>
                         <List>
                             {['Home', 'Movies', 'Shows'].map((text) => (
@@ -110,6 +125,14 @@ export default function Header(){
                         </List>
                     </Box>
                 </Drawer>
+            
+            <Menu
+                open={accountMenuOpen}
+                anchorEl={accountMenuAnchorEl}
+                onClose={handleAccountClose}
+            >
+                <MenuItem onClick={handleAccountClose} component={Link} href={"/auth"}>Sign In</MenuItem>
+            </Menu>
             </div>
     )
 }
