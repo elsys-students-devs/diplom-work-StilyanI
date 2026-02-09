@@ -1,6 +1,6 @@
 "use client";
 
-import {Box, Button, Container, Paper, TextField, Typography} from "@mui/material";
+import {Alert, Box, Button, Container, Paper, TextField, Typography} from "@mui/material";
 import {FormEvent, useState} from "react";
 import {styled} from "@mui/system";
 
@@ -34,11 +34,16 @@ export default function AuthPage() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
+    const [errorMessage, setErrorMessage] = useState("");
+
     const handleSubmit = (e: FormEvent) => {
+        setErrorMessage("");
         e.preventDefault();
+
         if(!login){
             if(password !== confirmPassword){
-                //handle
+                setErrorMessage("Passwords do not match");
+                return;
             }
         }
         //handle auth
@@ -94,13 +99,15 @@ export default function AuthPage() {
                             />
                             }
 
+                            {errorMessage !== "" && <Alert variant="filled" sx={{mt: 2}} severity="error">{errorMessage}</Alert>}
+
                             <Button
                                 fullWidth
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2, backgroundColor: "#333333" }}
                                 type="submit"
                             >
-                                Sign in
+                                {login ? "Sign in" : "Sign Up"}
                             </Button>
                             <Button sx={{color: "#b6b6b6", ":hover":{color: "white"} }} onClick={toggleLogin}>
                                 {login
