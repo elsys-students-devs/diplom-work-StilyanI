@@ -4,8 +4,8 @@ import {Box, Button, Container, Paper, TextField, Typography} from "@mui/materia
 import {FormEvent, useState} from "react";
 import {styled} from "@mui/system";
 
-const InputTextField = styled(TextField)({
-    '& label.Mui-focused': {
+const StyledTextField = styled(TextField)({
+    '& .MuiInputLabel-root': {
         color: 'white',
     },
     '& .MuiInput-underline:after': {
@@ -63,7 +63,7 @@ export default function AuthPage() {
                             Please sign in
                         </Typography>
                         <Box component="form" onSubmit={handleSubmit}>
-                            <InputTextField
+                            <StyledTextField
                                 margin="normal"
                                 fullWidth
                                 required
@@ -73,7 +73,7 @@ export default function AuthPage() {
                                 onChange={(e) => setUsername(e.target.value)}
                             />
 
-                            <InputTextField
+                            <StyledTextField
                                 margin="normal"
                                 fullWidth
                                 required
@@ -84,7 +84,7 @@ export default function AuthPage() {
                             />
 
                             {login ? null :
-                            <InputTextField
+                            <StyledTextField
                                 margin="normal"
                                 fullWidth
                                 required
