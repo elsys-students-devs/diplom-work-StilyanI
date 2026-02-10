@@ -1,8 +1,12 @@
 "use client";
 
 import {Alert, Box, Button, Container, Paper, TextField, Typography} from "@mui/material";
-import {FormEvent, useState} from "react";
+import {FormEvent, useEffect, useState} from "react";
 import {styled} from "@mui/system";
+import {useUser} from "@/app/hooks/UserHook";
+import {redirect} from "next/navigation";
+import * as AuthService from "@/app/services/AuthService";
+import {useLocalStorage} from "@/app/hooks/LocalStorageHook";
 
 const StyledTextField = styled(TextField)({
     '& .MuiInputLabel-root': {
@@ -28,6 +32,9 @@ const StyledTextField = styled(TextField)({
 });
 
 export default function AuthPage() {
+    const { user, setUser } = useUser();
+    const [_, setUserId] = useLocalStorage("userId", null);
+
     const [login, setLogin] = useState(true);
 
     const [username, setUsername] = useState("");
@@ -36,22 +43,52 @@ export default function AuthPage() {
 
     const [errorMessage, setErrorMessage] = useState("");
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         setErrorMessage("");
         e.preventDefault();
 
-        if(!login){
-            if(password !== confirmPassword){
-                setErrorMessage("Passwords do not match");
+        let fetched: () => Promise<void>;
+        if(login) {
+            fetched = async () => {
+                const res = await AuthService.login({username, password});
+                if (res.status === 200) {
+                    setUser(res.data);
+                }
+            }
+        } else {
+            if (password !== confirmPassword) {
+                setErrorMessage("Password wasn't correctly repeated");
                 return;
             }
+
+            fetched = async () => {
+                const res = await AuthService.register({username, password});
+                if (res.status === 200) {
+                    setUser(res.data);
+                }
+            }
         }
-        //handle auth
+
+        await fetched().catch((error: any) => {
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Something went wrong";
+
+            setErrorMessage(message);
+        });
     }
 
     const toggleLogin = () => {
         setLogin(!login);
     };
+
+    useEffect(() => {
+        if (user) {
+            setUserId(user.id);
+            redirect("/home");
+        }
+    }, [user]);
 
     return (
         <div>

@@ -20,10 +20,14 @@ import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import TvIcon from "@mui/icons-material/Tv";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import {usePathname} from "next/navigation";
+import {useUser} from "@/app/hooks/UserHook";
+import {useLocalStorage} from "@/app/hooks/LocalStorageHook";
 
 export default function Header(){
     const pathname = usePathname();
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const {user} = useUser();
+    const [_, setUserId] = useLocalStorage("userId", null);
 
     const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
     const accountMenuOpen = Boolean(accountMenuAnchorEl);
@@ -33,6 +37,11 @@ export default function Header(){
     const handleAccountClose = () => {
         setAccountMenuAnchorEl(null);
     };
+
+    const handleLogout = () => {
+        setUserId(null);
+        globalThis.location.reload();
+    }
 
     function toggleDrawer() {
         setDrawerOpen(!drawerOpen);
@@ -131,7 +140,11 @@ export default function Header(){
                 anchorEl={accountMenuAnchorEl}
                 onClose={handleAccountClose}
             >
-                <MenuItem onClick={handleAccountClose} component={Link} href={"/auth"}>Sign In</MenuItem>
+                {user ?
+                    <MenuItem onClick={handleLogout}>Log out</MenuItem>
+                    :
+                    <MenuItem onClick={handleAccountClose} component={Link} href={"/auth"}>Sign In</MenuItem>
+                }
             </Menu>
             </div>
     )

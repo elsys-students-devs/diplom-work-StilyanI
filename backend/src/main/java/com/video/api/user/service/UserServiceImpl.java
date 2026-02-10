@@ -25,6 +25,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User.UserDto getUserById(UUID id) {
+        User user = userRepository.findUserById(id).orElseThrow(() -> new LoginFailedException("User with id [" + id + "] not found"));
+
+        return User.mapToDto(user);
+    }
+
+    @Override
     public User.UserDto login(User.AuthDto authDto) {
         User user = userRepository.findUserByUsername(authDto.getUsername())
                 .orElseThrow(() -> new LoginFailedException("Account with this username was not found"));

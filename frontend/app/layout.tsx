@@ -3,6 +3,7 @@ import { Archivo } from "next/font/google";
 import ThemeRegistry from "@/app/theme/ThemeRegistry";
 import "./globals.css";
 import Header from "@/app/components/common/Header";
+import {UserProvider} from "@/app/contexts/UserContext";
 
 const archivo = Archivo({
     subsets: ["latin"],
@@ -24,10 +25,12 @@ export default function RootLayout({
       <body
         className={archivo.variable}
       >
-          <ThemeRegistry>
-              <Header/>
-              {children}
-          </ThemeRegistry>
+          <UserProvider>
+              <ThemeRegistry>
+                  <Header/>
+                  {children}
+              </ThemeRegistry>
+          </UserProvider>
       </body>
     </html>
   );

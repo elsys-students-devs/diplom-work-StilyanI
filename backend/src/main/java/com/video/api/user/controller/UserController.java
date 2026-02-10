@@ -26,6 +26,11 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping
+    public ResponseEntity<User.UserDto> getUser(@RequestParam("userId") UUID id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<User.UserDto> login(@Valid @RequestBody User.AuthDto authDto) {
         return ResponseEntity.ok(userService.login(authDto));

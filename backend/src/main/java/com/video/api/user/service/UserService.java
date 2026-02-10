@@ -6,6 +6,7 @@ import com.video.api.user.model.VideoProgress;
 import java.util.UUID;
 
 public interface UserService {
+    User.UserDto getUserById(UUID id);
     User.UserDto login(User.AuthDto authDto);
     User.UserDto register(User.AuthDto authDto);
 
