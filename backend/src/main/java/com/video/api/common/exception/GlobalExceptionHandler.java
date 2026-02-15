@@ -3,6 +3,7 @@ package com.video.api.common.exception;
 import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
 import com.video.api.user.exception.UserExistsException;
+import com.video.api.user.exception.UserNotExistsException;
 import com.video.api.video.exception.InvalidStreamQualityException;
 import com.video.api.video.exception.PlaylistFailedCreationException;
 import com.video.api.video.exception.TranscodingFailedException;
@@ -196,6 +197,18 @@ public class GlobalExceptionHandler {
 
         return  ResponseEntity
                 .status(HttpStatus.CONFLICT)
+                .body(error);
+    }
+
+    @ExceptionHandler(UserNotExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotExistsException(UserNotExistsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage()
+        );
+
+        return  ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(error);
     }
 

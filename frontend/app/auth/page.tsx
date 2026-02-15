@@ -63,13 +63,13 @@ export default function AuthPage() {
 
             fetched = async () => {
                 const res = await AuthService.register({username, password});
-                if (res.status === 200) {
+                if (res.status === 201) {
                     setUser(res.data);
                 }
             }
         }
 
-        await fetched().catch((error: any) => {
+        await fetched().catch((error) => {
             const message =
                 error?.response?.data?.message ||
                 error?.message ||
