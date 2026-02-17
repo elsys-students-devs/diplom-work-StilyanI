@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Select, MenuItem, FormControl, SelectChangeEvent } from "@mui/material";
+import { Box, Typography, Select, MenuItem, SelectChangeEvent } from "@mui/material";
 import Image from "next/image";
 import {Media} from "@/app/services/MediaService";
 import {useParams} from "next/navigation";
@@ -30,35 +30,33 @@ export default function ShowPage(){
             <Box sx={{paddingX: {xs: "10%", md: "20%"}}}>
                 <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600, mr: 3}}>Episodes</Typography>
-
-                    <FormControl sx={{minWidth: 150, outlineColor: "white"}}>
-                        <Select
-                            displayEmpty
-                            value={selectedSeason}
-                            onChange={handleChange}
-                            sx={{
-                                color:"white",
-                                backgroundColor: "#242424",
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'white'
-                                },
-                                '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'white'
-                                },
-                                '& .MuiSvgIcon-root': {
-                                    color: 'white'
-                                },
-                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    borderColor: 'white',
-                                    borderWidth: 1
-                                }
-                            }}
-                        >
-                            {selectedSeason != 0 && seasons.map(season => (
-                                <MenuItem key={season.number} value={season.number}>Season {season.number}</MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    <Select
+                        displayEmpty
+                        value={selectedSeason}
+                        onChange={handleChange}
+                        sx={{
+                            minWidth: 150,
+                            color:"white",
+                            backgroundColor: "#242424",
+                            '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'white'
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'white'
+                            },
+                            '& .MuiSvgIcon-root': {
+                                color: 'white'
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'white',
+                                borderWidth: 1
+                            }
+                        }}
+                    >
+                        {selectedSeason != 0 && seasons.map(season => (
+                            <MenuItem key={season.number} value={season.number}>Season {season.number}</MenuItem>
+                        ))}
+                    </Select>
                 </Box>
 
                 <Box sx={{mt: 3}}>
