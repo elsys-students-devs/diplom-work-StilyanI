@@ -1,12 +1,12 @@
 import {getAllMedia, Media} from "@/app/services/MediaService";
 
-const testMovies: Media[] = getAllMedia().filter((media) => media.type === "movie");
+const movies: Media[] = getAllMedia().filter((media) => media.type === "movie");
 
 export function getMovies() {
-    return testMovies;
+    return movies;
 }
 
-export function getMovieById(id: string) {
-    const movie = testMovies.find((movie) => movie.id === id);
+export function getMovieById(id: number) {
+    const movie = movies.find((movie) => movie.id === id);
     return movie || null;
 }

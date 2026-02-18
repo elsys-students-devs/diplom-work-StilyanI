@@ -51,8 +51,8 @@ export default function ScrollableImageList({
                     >
                         <Link href={(media.type === "movie" ? '/movies/' : "/shows/") + media.id}>
                             <Image
-                                alt={media.title}
-                                src={position == "vertical" ? media.posterUrl : media.backdropUrl}
+                                alt={media.name}
+                                src={position == "vertical" ? media.posterPath : media.backdropPath}
                                 height={200}
                                 width={400}
                                 className={"media-image"}

@@ -1,7 +1,5 @@
 import {getAllMedia, Media} from "@/app/services/MediaService";
 
-const testShows: Media[] = getAllMedia().filter((media) => media.type === "show");
-
 export type ShowEpisode = {
     number: number;
     title: string;
@@ -10,14 +8,14 @@ export type ShowEpisode = {
 }
 
 export type ShowSeason = {
-    showId: string;
+    showId: number;
     number: number;
     episodes: ShowEpisode[];
 }
 
 const testSeasons: ShowSeason[] = [
     {
-        showId: "3",
+        showId: 3,
         number: 1,
         episodes: [
             {
@@ -35,7 +33,7 @@ const testSeasons: ShowSeason[] = [
         ]
     },
     {
-        showId: "3",
+        showId: 3,
         number: 2,
         episodes: [
             {
@@ -48,15 +46,17 @@ const testSeasons: ShowSeason[] = [
     },
 ]
 
+const shows: Media[] = getAllMedia().filter((media) => media.type === "tv");
+
 export function getShows() {
-    return testShows;
+    return shows;
 }
 
-export function getShowById(id: string) {
-    const show = testShows.find((show) => show.id === id);
+export function getShowById(id: number) {
+    const show = shows.find((show) => show.id === id);
     return show || null;
 }
 
-export function getShowSeasons(id: string) {
+export function getShowSeasons(id: number) {
     return testSeasons.filter((season) => season.showId === id);
 }

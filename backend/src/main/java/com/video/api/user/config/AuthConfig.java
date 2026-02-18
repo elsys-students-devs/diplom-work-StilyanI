@@ -28,6 +28,7 @@ public class AuthConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/users", "/users/register", "/users/login").permitAll()
                         .requestMatchers("/users/video-progress").permitAll()
+                        .requestMatchers("/metadata/**", "/video/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
