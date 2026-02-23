@@ -1,5 +1,6 @@
 package com.video.api.metadata.controller;
 
+import com.video.api.metadata.dto.ShowSeasonDto;
 import com.video.api.metadata.model.MediaType;
 import com.video.api.metadata.model.TvEpisode;
 import com.video.api.metadata.service.MetadataService;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/metadata")
 public class MetadataController {
@@ -19,9 +22,15 @@ public class MetadataController {
     public MetadataController(MetadataService metadataService) {
         this.metadataService = metadataService;
     }
+
     @GetMapping
     public ResponseEntity<Media[]> getAll(){
         return ResponseEntity.ok(metadataService.getAll());
+    }
+
+    @GetMapping("/shows/{id}/seasons")
+    public ResponseEntity<List<ShowSeasonDto>> getShowSeasons(@PathVariable int id){
+        return ResponseEntity.ok(metadataService.getTvSeasons(id));
     }
 
     @GetMapping("/{id}")

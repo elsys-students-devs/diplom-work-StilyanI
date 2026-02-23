@@ -9,9 +9,11 @@ import org.mapstruct.Mapping;
 public interface VideoProgressMapper {
 
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "video.id", target = "videoId")
     VideoProgressDto toDto(VideoProgress entity);
 
     @Mapping(source = "userId", target = "user.id")
+    @Mapping(source = "videoId", target = "video.id")
     @Mapping(target = "id", ignore = true)
     VideoProgress toEntity(VideoProgressDto dto);
 }

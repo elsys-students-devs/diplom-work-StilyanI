@@ -1,5 +1,6 @@
 package com.video.api.user.model;
 
+import com.video.api.video.model.Video;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -30,7 +31,10 @@ public class VideoProgress {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String videoId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "video_id", nullable = false)
+    private Video video;
+
     private Long progressSeconds;
     private Integer progressPercent;
 }

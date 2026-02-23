@@ -1,5 +1,6 @@
 package com.video.api.metadata.service;
 
+import com.video.api.metadata.dto.ShowSeasonDto;
 import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
 import com.video.api.metadata.model.Media;
@@ -11,13 +12,17 @@ import com.video.api.metadata.model.TMDBSearchResponse;
 import com.video.api.metadata.model.TvEpisode;
 import com.video.api.video.model.FolderSearchResult;
 import com.video.api.video.model.MovieFolder;
+import com.video.api.video.model.ShowEpisodeFile;
 import com.video.api.video.model.ShowFolder;
+import com.video.api.video.model.ShowSeasonFolder;
 import com.video.api.video.service.VideoScannerService;
+import jakarta.annotation.PostConstruct;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -37,17 +42,21 @@ public class MetadataServiceImpl implements MetadataService {
     private final JsonMapper jsonMapper;
     private final VideoScannerService  videoScannerService;
 
-    MetadataServiceImpl metadataService;
+    private final MetadataServiceImpl metadataService;
 
     private static final String BASE_URL = "https://api.themoviedb.org/3";
     private static final String LANGUAGE = "language";
     private static final String EN_US = "en-US";
     private static final String TMDB_IMAGE_URL = "https://image.tmdb.org/t/p/original";
 
-    public MetadataServiceImpl(OkHttpClient client, JsonMapper jsonMapper, VideoScannerService videoScannerService) {
+    private FolderSearchResult folderSearchResult;
+    private List<Media> mediaList;
+
+    public MetadataServiceImpl(OkHttpClient client, JsonMapper jsonMapper, VideoScannerService videoScannerService, @Lazy MetadataServiceImpl metadataService) {
         this.client = client;
         this.jsonMapper = jsonMapper;
         this.videoScannerService = videoScannerService;
+        this.metadataService = metadataService;
     }
 
     private <T> T execute(Request request, Class<T> responseType) {
@@ -73,16 +82,17 @@ public class MetadataServiceImpl implements MetadataService {
                 .build();
     }
 
-    @Override
-    public Media[] getAll() {
-        FolderSearchResult folders = videoScannerService.getFoldersList();
-        if (folders == null) return new Media[0];
+    @PostConstruct
+    private void init(){
+        folderSearchResult = videoScannerService.getFoldersList();
+        mediaList = new ArrayList<>();
 
-        List<Media> result = new ArrayList<>();
+        if (folderSearchResult == null) return;
+
         Set<Integer> seenTmdbIds = new HashSet<>();
 
-        if (folders.getMovies() != null) {
-            for (MovieFolder movie : folders.getMovies()) {
+        if (folderSearchResult.getMovies() != null) {
+            for (MovieFolder movie : folderSearchResult.getMovies()) {
                 Media media = resolveMedia(
                         movie.getTitle(),
                         movie.getYear(),
@@ -93,13 +103,13 @@ public class MetadataServiceImpl implements MetadataService {
                 media = enrichMedia(media, movie.getId(), MediaType.MOVIE);
 
                 if (media != null && seenTmdbIds.add(media.getTmdbId())) {
-                    result.add(media);
+                    mediaList.add(media);
                 }
             }
         }
 
-        if (folders.getShows() != null) {
-            for (ShowFolder show : folders.getShows()) {
+        if (folderSearchResult.getShows() != null) {
+            for (ShowFolder show : folderSearchResult.getShows()) {
                 Media media = resolveMedia(
                         show.getTitle(),
                         show.getYear(),
@@ -110,12 +120,16 @@ public class MetadataServiceImpl implements MetadataService {
                 media = enrichMedia(media, null, MediaType.TVSHOW);
 
                 if (media != null && seenTmdbIds.add(media.getTmdbId())) {
-                    result.add(media);
+                    show.setTmdbId(media.getTmdbId());
+                    mediaList.add(media);
                 }
             }
         }
+    }
 
-        return result.toArray(Media[]::new);
+    @Override
+    public Media[] getAll() {
+        return mediaList.toArray(Media[]::new);
     }
 
     private Media resolveMedia(String title, Integer year, String imdbId, MediaType type) {
@@ -180,6 +194,34 @@ public class MetadataServiceImpl implements MetadataService {
                 .orElse(null);
     }
 
+    @Override
+    public List<ShowSeasonDto> getTvSeasons(int tmdbId){
+        ShowFolder tvShowFolder = folderSearchResult.getShows().stream()
+                .filter(showFolder -> showFolder.getTmdbId() ==  tmdbId)
+                .findFirst()
+                .orElse(null);
+
+        if(tvShowFolder == null) return List.of();
+
+        List<ShowSeasonDto> result = new ArrayList<>();
+        for (ShowSeasonFolder seasonFolder : tvShowFolder.getAvailableSeasons()){
+            List<TvEpisode> episodeList = new ArrayList<>();
+
+            for (ShowEpisodeFile episodeFile : seasonFolder.getAvailableEpisodes()){
+                TvEpisode tvEpisode = metadataService.getTvEpisode(tmdbId, seasonFolder.getSeasonNumber(), episodeFile.getEpisodeNumber());
+
+                if (tvEpisode != null) {
+                    tvEpisode.setStillPath(TMDB_IMAGE_URL + tvEpisode.getStillPath());
+                    tvEpisode.setId(episodeFile.getId());
+                    episodeList.add(tvEpisode);
+                }
+            }
+
+            result.add(new ShowSeasonDto(seasonFolder.getSeasonNumber(), episodeList));
+        }
+
+        return result;
+    }
 
     @Override
     public Media search(String name, MediaType mediaType, HashMap<String, String> otherParameters) {

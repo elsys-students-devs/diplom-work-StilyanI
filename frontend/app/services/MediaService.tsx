@@ -5,7 +5,7 @@ const instance = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-})
+});
 
 export type Media = {
     id: number | null;
@@ -21,16 +21,20 @@ export type Media = {
 }
 
 let mediaList: Media[];
-const res = await instance.get("/metadata");
-mediaList = res.data;
+try {
+    const res = await instance.get("/metadata");
+    mediaList = res.data;
+} catch (e) {
+    console.error(e);
+}
+
 
 export function getAllMedia(): Media[] {
     return mediaList;
 }
 
-export function getMediaById(id: number): Media | null {
-    const media = mediaList.find((m) => m.id === id);
-    return media || null;
+export function getMediaListByIds(ids: number[]): Media[] {
+    return mediaList.filter((m) => m.id != null && ids.includes(m.id));
 }
 
 export function parseReleaseDateToYear(date : string){

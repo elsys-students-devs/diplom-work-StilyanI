@@ -2,7 +2,7 @@
 
 import {
     AppBar,
-    Box, Divider, Drawer,
+    Box, Drawer,
     IconButton,
     List,
     ListItem,
@@ -18,7 +18,6 @@ import {useState, MouseEvent} from "react";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import TvIcon from "@mui/icons-material/Tv";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import {usePathname} from "next/navigation";
 import {useUser} from "@/app/hooks/UserHook";
 import {useLocalStorage} from "@/app/hooks/LocalStorageHook";
@@ -119,18 +118,6 @@ export default function Header(){
                                     </ListItemButton>
                                 </ListItem>
                             ))}
-
-                            <Divider/>
-
-                            <ListItem key={'dashboard'}>
-                                <ListItemButton component={Link} href={"/dashboard"}>
-                                    <ListItemIcon>
-                                        <DashboardIcon/>
-                                    </ListItemIcon>
-                                    <ListItemText primary={'Dashboard'}/>
-                                </ListItemButton>
-                            </ListItem>
-
                         </List>
                     </Box>
                 </Drawer>

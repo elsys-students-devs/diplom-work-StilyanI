@@ -3,7 +3,6 @@
 import {Media, parseReleaseDateToYear} from "@/app/services/MediaService";
 import {Box, Button, Typography} from "@mui/material";
 import Image from "next/image";
-import {runtimeFormated} from "@/app/util/MediaUtil";
 import Link from "next/link";
 
 interface MediaPageInfoProps {
@@ -45,9 +44,6 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
                         <Typography fontSize={32}>{media.name}</Typography>
                         <Box sx={{display: "flex", justifyContent: "space-between"}}>
                             <Typography fontSize={16}>{parseReleaseDateToYear(media.releaseDate)}</Typography>
-                            {media.type === "movie" &&
-                                <Typography fontSize={16}>{runtimeFormated(media.runtime!)}</Typography>
-                            }
                         </Box>
                     </Box>
 

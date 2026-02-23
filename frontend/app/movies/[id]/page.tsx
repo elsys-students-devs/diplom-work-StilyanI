@@ -10,7 +10,6 @@ export default function MoviePage(){
     const movieId = useParams().id;
     const movie = getMovieById(Number(movieId)) as Media;
 
-    console.log(movie);
     return (
         <Box sx={{pb: 10}}>
             <MediaPageInfo media={movie} />

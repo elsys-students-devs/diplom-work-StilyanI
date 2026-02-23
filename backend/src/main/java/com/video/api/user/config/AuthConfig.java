@@ -26,9 +26,9 @@ public class AuthConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users", "/users/register", "/users/login").permitAll()
-                        .requestMatchers("/users/video-progress").permitAll()
-                        .requestMatchers("/metadata/**", "/video/**").permitAll()
+                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/metadata/**").permitAll()
+                        .requestMatchers("/video/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

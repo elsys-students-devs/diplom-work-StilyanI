@@ -6,12 +6,14 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,8 +26,13 @@ public class VideoProgressController {
     }
 
     @GetMapping
-    public ResponseEntity<VideoProgressDto> getVideoProgress(@RequestParam UUID userId, @RequestParam String videoId) {
+    public ResponseEntity<VideoProgressDto> getVideoProgress(@RequestParam UUID userId, @RequestParam Long videoId) {
         return ResponseEntity.ok(videoProgressService.getProgress(userId, videoId));
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<List<Long>> getProgressForUser(@PathVariable UUID userId) {
+        return ResponseEntity.ok(videoProgressService.getProgressForUser(userId));
     }
 
     @PutMapping

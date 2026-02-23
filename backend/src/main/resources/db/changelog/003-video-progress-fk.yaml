@@ -1,0 +1,20 @@
+databaseChangeLog:
+- changeSet:
+    id: 003-alter-video-id-type
+    author: stilyani
+    changes:
+      - modifyDataType:
+          tableName: video_progress
+          columnName: video_id
+          newDataType: BIGINT
+
+- changeSet:
+    id: 003-add-fk-video-progress-video
+    author: stilyani
+    changes:
+      - addForeignKeyConstraint:
+          baseTableName: video_progress
+          baseColumnNames: video_id
+          constraintName: fk_video_progress_video
+          referencedTableName: videos
+          referencedColumnNames: id

@@ -1,16 +1,17 @@
 package com.video.api.video.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
 @Data
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ShowFolder {
-    private String title;
-    private Integer year;
-    private String imdbId;
+    private final String title;
+    private final Integer year;
+    private final String imdbId;
 
-    private List<ShowSeasonFolder> availableSeasons;
+    private final List<ShowSeasonFolder> availableSeasons;
+    private int tmdbId;
 }

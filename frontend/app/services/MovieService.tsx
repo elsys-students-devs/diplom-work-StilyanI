@@ -7,6 +7,6 @@ export function getMovies() {
 }
 
 export function getMovieById(id: number) {
-    const movie = movies.find((movie) => movie.id === id);
+    const movie = movies.find((movie) => movie.tmdbId === id);
     return movie || null;
 }
