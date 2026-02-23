@@ -77,6 +77,12 @@ export default function VideoPlayer() {
             const res = await getProgress(user, Number(videoId));
             if (!res) return;
 
+            if(res.data.progressPercent > 95){
+                saveProgress(user, Number(videoId), 0, 0);
+                startTimeRef.current = 0;
+                return;
+            }
+
             const t = res.data.progressSeconds ?? 0;
             startTimeRef.current = t;
 
