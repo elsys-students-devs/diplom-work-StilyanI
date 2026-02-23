@@ -1,0 +1,50 @@
+services:
+  db:
+    image: "postgres:16.4"
+    container_name: postgres-database-dp
+    environment:
+      POSTGRES_USER: ${PGSQL_USER}
+      POSTGRES_PASSWORD: ${PGSQL_PASSWORD}
+      POSTGRES_DB: db
+      DATABASE_HOST: localhost
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      TMDB_API_ACCESS_TOKEN: ${TMDB_API_ACCESS_TOKEN}
+      PGSQL_USER: ${PGSQL_USER}
+      PGSQL_PASSWORD: ${PGSQL_PASSWORD}
+
+      PGSQL_JDBC_URL: jdbc:postgresql://db:5432/db
+
+      VIDEOS_DIR: /videos
+      HLS_OUTPUT_DIR: /hls_output
+    volumes:
+      - ./videos:/videos:rw
+      - ./hls_output:/hls_output:rw
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: 
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8080
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    ports:
+      - "3000:3000"
+
+volumes:
+  postgres-data:
+    name: dp-postgres-data-16.4

@@ -1,5 +1,5 @@
 import axios from "axios";
-
+console.log("backend url: " + process.env.NEXT_PUBLIC_API_URL);
 const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
@@ -20,7 +20,7 @@ export type Media = {
     type: "movie" | "tv";
 }
 
-let mediaList: Media[];
+let mediaList: Media[] = [];
 try {
     const res = await instance.get("/metadata");
     mediaList = res.data;
