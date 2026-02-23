@@ -204,7 +204,11 @@ public class VideoScannerService {
         Integer year = null;
         String yearGroup = matcher.group(2);
         if (yearGroup != null && !yearGroup.isBlank()) {
-            year = Integer.parseInt(yearGroup);
+            try {
+                year = Integer.parseInt(yearGroup);
+            } catch (NumberFormatException _) {
+                //year stays null
+            }
         }
 
         String imdbId = matcher.group(3);
@@ -234,7 +238,11 @@ public class VideoScannerService {
     private Optional<Integer> parseEpisodeNumber(String fileBaseName) {
         Matcher m = EPISODE_PATTERN.matcher(fileBaseName);
         if (m.find()) {
-            return Optional.of(Integer.parseInt(m.group(1)));
+            try {
+                return Optional.of(Integer.parseInt(m.group(1)));
+            } catch (NumberFormatException _) {
+                return Optional.empty();
+            }
         }
 
         return Optional.empty();
