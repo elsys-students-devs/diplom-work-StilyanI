@@ -9,33 +9,38 @@ const instance = axios.create({
 })
 
 export async function getAllProgress(user: User | null) {
-    if (user) {
+    if (!user) return null;
+    try {
         return await instance.get(`/users/video-progress/${user.id}`);
-    } else {
+    } catch (e) {
+        console.error("Failed to fetch progress:", e);
         return null;
     }
 }
 
 export async function getProgress(user: User | null, videoId: number) {
-    if (user) {
-        return await instance.get(`/users/video-progress?userId=${user.id}&videoId=${videoId}`);
-    } else {
+    if (!user) return null;
+    try {
+        return await instance.get(`/users/video-progress`, {
+            params: { userId: user.id, videoId }
+        });
+    } catch (e) {
+        console.error("Failed to fetch video progress:", e);
         return null;
     }
 }
 
 export async function saveProgress(user: User | null, videoId: number, progressSeconds: number, progressPercent: number) {
-    if(!user){
-        console.error("User is needed to save progress");
-        return;
-    }
+    if (!user) return;
 
-    const progress = {
-        userId: user.id,
-        videoId,
-        progressSeconds: progressSeconds,
-        progressPercent: progressPercent
+    try {
+        return await instance.put("/users/video-progress", {
+            userId: user.id,
+            videoId,
+            progressSeconds,
+            progressPercent
+        });
+    } catch (e) {
+        console.error("Failed to save progress:", e);
     }
-
-    return await instance.put("/users/video-progress", progress);
 }

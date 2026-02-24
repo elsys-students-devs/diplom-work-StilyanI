@@ -18,15 +18,16 @@ import {useState, MouseEvent} from "react";
 import HomeIcon from "@mui/icons-material/Home";
 import LocalMoviesIcon from "@mui/icons-material/LocalMovies";
 import TvIcon from "@mui/icons-material/Tv";
-import {usePathname} from "next/navigation";
+import {usePathname, useRouter} from "next/navigation";
 import {useUser} from "@/app/hooks/UserHook";
 import {useLocalStorage} from "@/app/hooks/LocalStorageHook";
 
 export default function Header(){
     const pathname = usePathname();
+    const router = useRouter();
     const [drawerOpen, setDrawerOpen] = useState(false);
-    const {user} = useUser();
-    const [_, setUserId] = useLocalStorage("userId", null);
+    const {user, setUser} = useUser();
+    const [, setUserId] = useLocalStorage("userId", null);
 
     const [accountMenuAnchorEl, setAccountMenuAnchorEl] = useState<null | HTMLElement>(null);
     const accountMenuOpen = Boolean(accountMenuAnchorEl);
@@ -39,7 +40,9 @@ export default function Header(){
 
     const handleLogout = () => {
         setUserId(null);
-        globalThis.location.reload();
+        setUser(null);
+        handleAccountClose();
+        router.push("/auth");
     }
 
     function toggleDrawer() {

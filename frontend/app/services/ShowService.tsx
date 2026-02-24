@@ -1,4 +1,4 @@
-import {getAllMedia, Media} from "@/app/services/MediaService";
+import {getAllMedia, getAllMediaAsync, Media} from "@/app/services/MediaService";
 import axios from "axios";
 
 const instance = axios.create({
@@ -21,15 +21,18 @@ export type ShowSeason = {
     episodes: ShowEpisode[];
 }
 
-const shows: Media[] = getAllMedia().filter((media) => media.type === "tv");
-
-export function getShows() {
-    return shows;
+export async function getShowsAsync(): Promise<Media[]> {
+    const all = await getAllMediaAsync();
+    return all.filter((media) => media.type === "tv");
 }
 
-export function getShowById(id: number) {
-    const show = shows.find((show) => show.tmdbId === id);
-    return show || null;
+export function getShows(): Media[] {
+    return getAllMedia().filter((media) => media.type === "tv");
+}
+
+export function getShowById(id: number): Media | null {
+    const shows = getAllMedia().filter((media) => media.type === "tv");
+    return shows.find((show) => show.tmdbId === id) || null;
 }
 
 export async function getShowSeasons(id: number) {

@@ -11,8 +11,11 @@ export function useLocalStorage(key: string, initialValue: null) {
     });
 
     const setLocalStorageValue = (newValue: string | null) => {
-        localStorage.setItem(key, newValue!);
-
+        if (newValue === null) {
+            localStorage.removeItem(key);
+        } else {
+            localStorage.setItem(key, newValue);
+        }
         setValue(newValue);
     };
 

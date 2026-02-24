@@ -11,7 +11,6 @@ import com.video.api.user.service.VideoProgressService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,21 +25,25 @@ public class VideoProgressServiceImpl implements VideoProgressService {
     public VideoProgressDto getProgress(UUID userId, Long videoId) {
         VideoProgress vp = videoProgressRepository
                 .findVideoProgressByUserIdAndVideoId(userId, videoId)
-                .orElseThrow();
+                .orElse(null);
+
+        if (vp == null) {
+            VideoProgressDto defaultProgress = new VideoProgressDto();
+            defaultProgress.setUserId(userId);
+            defaultProgress.setVideoId(videoId);
+            defaultProgress.setProgressSeconds(0L);
+            defaultProgress.setProgressPercent(0);
+            return defaultProgress;
+        }
 
         return videoProgressMapper.toDto(vp);
     }
 
     @Override
     public List<Long> getProgressForUser(UUID userId) {
-        List<VideoProgress> videoProgressList = videoProgressRepository.findVideoProgressByUserId(userId);
-        List<Long> videoIdList = new ArrayList<>();
-
-        for (VideoProgress vp : videoProgressList) {
-            videoIdList.add(vp.getVideo().getId());
-        }
-
-        return videoIdList;
+        return videoProgressRepository.findVideoProgressByUserId(userId).stream()
+                .map(vp -> vp.getVideo().getId())
+                .toList();
     }
 
     @Override

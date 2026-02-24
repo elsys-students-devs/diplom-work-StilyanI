@@ -2,6 +2,7 @@ package com.video.api.common.exception;
 
 import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
+import com.video.api.user.exception.LoginFailedException;
 import com.video.api.user.exception.UserExistsException;
 import com.video.api.user.exception.UserNotExistsException;
 import com.video.api.video.exception.InvalidStreamQualityException;
@@ -212,11 +213,23 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
+    @ExceptionHandler(LoginFailedException.class)
+    public ResponseEntity<ErrorResponse> handleLoginFailedException(LoginFailedException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED.value(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(error);
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage()
+                "An unexpected error occurred"
         );
 
         return ResponseEntity

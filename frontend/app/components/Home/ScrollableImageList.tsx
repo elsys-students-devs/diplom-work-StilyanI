@@ -1,6 +1,6 @@
 "use client";
 
-import { Media } from "@/app/services/MediaService";
+import { Media, FALLBACK_IMAGE } from "@/app/services/MediaService";
 import {Box, ImageList, ImageListItem} from "@mui/material";
 import Link from "next/link";
 import Image from "next/image";
@@ -43,7 +43,7 @@ export default function ScrollableImageList({
             >
                 {items?.map((media) => (
                     <ImageListItem
-                        key={media.id}
+                        key={media.tmdbId}
                         sx={{
                             flex: "0 0 auto", mr: {xs: 1.5, sm: 2, md: 3},
                             width: {
@@ -57,7 +57,7 @@ export default function ScrollableImageList({
                         <Link href={continueWatching ? `/player?video-id=${media.id}` : parseInfoLink(media)}>
                             <Image
                                 alt={media.name}
-                                src={alignment == "vertical" ? media.posterPath : media.backdropPath}
+                                src={(alignment === "vertical" ? media.posterPath : media.backdropPath) || FALLBACK_IMAGE}
                                 height={200}
                                 width={400}
                                 className={"media-image"}

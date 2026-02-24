@@ -3,10 +3,14 @@
 import {Box, Grid, Typography} from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
-import {Media} from "@/app/services/MediaService";
+import {Media, FALLBACK_IMAGE} from "@/app/services/MediaService";
 
 interface MediaGridProps {
     items: Media[];
+}
+
+function getMediaLink(item: Media): string {
+    return (item.type === "movie" ? "/movies/" : "/shows/") + item.tmdbId;
 }
 
 export default function MediaGrid({
@@ -15,16 +19,16 @@ export default function MediaGrid({
     return (
         <Grid container spacing={3} sx={{ mx: 5 }}>
             {items.map((item) => (
-                <Grid key={item.id}>
+                <Grid key={item.tmdbId}>
                     <Box
                         display="flex"
                         flexDirection="column"
                         alignItems="center"
                     >
-                        <Link replace href={(item.type === "movie" ? '/movies/' : "/shows/") + item.tmdbId}>
+                        <Link replace href={getMediaLink(item)}>
                             <Image
                                 className="media-image"
-                                src={item.posterPath}
+                                src={item.posterPath || FALLBACK_IMAGE}
                                 alt={item.name}
                                 width={300}
                                 height={450}
@@ -37,5 +41,5 @@ export default function MediaGrid({
                 </Grid>
             ))}
         </Grid>
-    )
+    );
 }

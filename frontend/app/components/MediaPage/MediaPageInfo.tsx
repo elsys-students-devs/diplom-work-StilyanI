@@ -1,6 +1,6 @@
 "use client";
 
-import {Media, parseReleaseDateToYear} from "@/app/services/MediaService";
+import {Media, parseReleaseDateToYear, FALLBACK_IMAGE} from "@/app/services/MediaService";
 import {Box, Button, Typography} from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,29 +10,33 @@ interface MediaPageInfoProps {
 }
 
 export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
+    if (!media) return null;
+
     return (
         <Box>
             <Box className={"media-page-hero-backdrop-container"}>
-                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropPath})`}}></Box>
+                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropPath || ""})`}}></Box>
             </Box>
             <Box
                 className="media-page-hero"
             />
 
-            <Box
-                sx={{
-                    display: {xs: "none", lg: "block"}
-                }}
-            >
-                <Image src={media?.logoPath} alt={media.name + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
-            </Box>
+            {media.logoPath && (
+                <Box
+                    sx={{
+                        display: {xs: "none", lg: "block"}
+                    }}
+                >
+                    <Image src={media.logoPath} alt={media.name + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
+                </Box>
+            )}
 
             <Box
                 sx={{
                     display: {xs: "none", sm: "block"}
                 }}
             >
-                <Image src={media.posterPath} alt={media.name + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
+                <Image src={media.posterPath || FALLBACK_IMAGE} alt={media.name + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
             </Box>
         
             <Box>

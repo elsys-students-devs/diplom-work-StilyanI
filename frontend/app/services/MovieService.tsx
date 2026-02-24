@@ -1,12 +1,15 @@
-import {getAllMedia, Media} from "@/app/services/MediaService";
+import {getAllMedia, getAllMediaAsync, Media} from "@/app/services/MediaService";
 
-const movies: Media[] = getAllMedia().filter((media) => media.type === "movie");
-
-export function getMovies() {
-    return movies;
+export async function getMoviesAsync(): Promise<Media[]> {
+    const all = await getAllMediaAsync();
+    return all.filter((media) => media.type === "movie");
 }
 
-export function getMovieById(id: number) {
-    const movie = movies.find((movie) => movie.tmdbId === id);
-    return movie || null;
+export function getMovies(): Media[] {
+    return getAllMedia().filter((media) => media.type === "movie");
+}
+
+export function getMovieById(id: number): Media | null {
+    const movies = getAllMedia().filter((media) => media.type === "movie");
+    return movies.find((movie) => movie.tmdbId === id) || null;
 }
