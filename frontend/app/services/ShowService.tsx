@@ -1,62 +1,37 @@
 import {getAllMedia, Media} from "@/app/services/MediaService";
+import axios from "axios";
 
-const testShows: Media[] = getAllMedia().filter((media) => media.type === "show");
+const instance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    headers: {
+        "Content-Type": "application/json",
+    },
+});
 
 export type ShowEpisode = {
-    number: number;
-    title: string;
-    stillUrl: string;
-    description: string;
+    id: number;
+    episodeNumber: number;
+    name: string;
+    stillPath: string;
+    overview: string;
 }
 
 export type ShowSeason = {
-    showId: string;
-    number: number;
+    seasonNumber: number;
     episodes: ShowEpisode[];
 }
 
-const testSeasons: ShowSeason[] = [
-    {
-        showId: "3",
-        number: 1,
-        episodes: [
-            {
-                number: 1,
-                title: "Pilot",
-                stillUrl: "https://image.tmdb.org/t/p/original/uboMk8oH0OcS33TmLnC4lvgk3t8.jpg",
-                description: "something happens",
-            },
-            {
-                number: 2,
-                title: "Pilot",
-                stillUrl: "https://image.tmdb.org/t/p/original/uboMk8oH0OcS33TmLnC4lvgk3t8.jpg",
-                description: "something happens",
-            }
-        ]
-    },
-    {
-        showId: "3",
-        number: 2,
-        episodes: [
-            {
-                number: 1,
-                title: "Not Pilot",
-                stillUrl: "https://image.tmdb.org/t/p/original/uboMk8oH0OcS33TmLnC4lvgk3t8.jpg",
-                description: "something happens again",
-            }
-        ]
-    },
-]
+const shows: Media[] = getAllMedia().filter((media) => media.type === "tv");
 
 export function getShows() {
-    return testShows;
+    return shows;
 }
 
-export function getShowById(id: string) {
-    const show = testShows.find((show) => show.id === id);
+export function getShowById(id: number) {
+    const show = shows.find((show) => show.tmdbId === id);
     return show || null;
 }
 
-export function getShowSeasons(id: string) {
-    return testSeasons.filter((season) => season.showId === id);
+export async function getShowSeasons(id: number) {
+    return await instance.get(`/metadata/shows/${id}/seasons`);
 }

@@ -7,11 +7,16 @@ import Image from "next/image";
 
 interface ScrollableImageListProps {
     items: Media[];
-    position: "horizontal" | "vertical";
+    alignment: "horizontal" | "vertical";
+    continueWatching?: boolean;
+}
+
+function parseInfoLink(media: Media) {
+    return (media.type === "movie" ? '/movies/' : "/shows/") + media.tmdbId;
 }
 
 export default function ScrollableImageList({
-    items, position
+    items, alignment, continueWatching
 }: Readonly<ScrollableImageListProps>) {
 
     return (
@@ -42,17 +47,17 @@ export default function ScrollableImageList({
                         sx={{
                             flex: "0 0 auto", mr: {xs: 1.5, sm: 2, md: 3},
                             width: {
-                                xs: position === "vertical" ? "30vw" : "60vw",
-                                sm: position === "vertical" ? "23vw" : "45vw",
-                                md: position === "vertical" ? "15vw" : "30vw",
+                                xs: alignment === "vertical" ? "30vw" : "60vw",
+                                sm: alignment === "vertical" ? "23vw" : "45vw",
+                                md: alignment === "vertical" ? "15vw" : "30vw",
                             },
-                            maxWidth: position === "vertical" ? "200px" : "400px"
+                            maxWidth: alignment === "vertical" ? "200px" : "400px"
                         }}
                     >
-                        <Link href={(media.type === "movie" ? '/movies/' : "/shows/") + media.id}>
+                        <Link href={continueWatching ? `/player?video-id=${media.id}` : parseInfoLink(media)}>
                             <Image
-                                alt={media.title}
-                                src={position == "vertical" ? media.posterUrl : media.backdropUrl}
+                                alt={media.name}
+                                src={alignment == "vertical" ? media.posterPath : media.backdropPath}
                                 height={200}
                                 width={400}
                                 className={"media-image"}

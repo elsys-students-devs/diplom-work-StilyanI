@@ -6,6 +6,8 @@ import com.video.api.video.exception.PlaylistFailedCreationException;
 import com.video.api.video.exception.TranscodingFailedException;
 import com.video.api.video.exception.VideoFileNotFoundException;
 import com.video.api.video.model.StreamQuality;
+import com.video.api.video.model.Video;
+import com.video.api.video.repository.VideoRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -14,13 +16,8 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static com.video.api.video.util.FileBrowsingUtils.parseDirectories;
 import static com.video.api.video.util.VideoUtils.getVideoDuration;
 import static com.video.api.video.util.VideoUtils.scanHighestSegment;
 import static com.video.api.video.util.VideoUtils.segmentPath;
@@ -34,22 +31,19 @@ public class VideoServiceImpl implements VideoService {
 
     private final TranscodingService transcodingService;
     private final VideoProperties videoProperties;
+    private final VideoRepository videoRepository;
 
-    public VideoServiceImpl(TranscodingService transcodingService, VideoProperties videoProperties) {
+    public VideoServiceImpl(TranscodingService transcodingService, VideoProperties videoProperties, VideoRepository videoRepository) {
         this.transcodingService = transcodingService;
         this.videoProperties = videoProperties;
+        this.videoRepository = videoRepository;
     }
 
     @Override
-    public Resource getVideoMasterPlaylist(String videoId) {
+    public Resource getVideoMasterPlaylist(Long videoId) {
         log.info("Getting video master playlist for video id {}", videoId);
-        Path sourcePath = resolveSourceVideo(videoId);
 
-        if (sourcePath == null) {
-            throw new VideoFileNotFoundException("Source video not found for videoId=" + videoId);
-        }
-
-        Path masterPath = Paths.get(videoProperties.getHlsOutputPath(), videoId, "master.m3u8");
+        Path masterPath = Paths.get(videoProperties.getHlsOutputPath(), String.valueOf(videoId), "master.m3u8");
 
         if(!Files.exists(masterPath)) {
             String masterContent = StreamQuality.QUALITY_LIST.stream()
@@ -80,13 +74,13 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Resource getVideoPlaylist(String videoId, String quality) {
+    public Resource getVideoPlaylist(Long videoId, String quality) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
         verifyRequestParams(videoId, quality, sourcePath, streamQuality);
 
-        Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), videoId, quality);
+        Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), String.valueOf(videoId), quality);
         Path playlistPath = outputDir.resolve("playlist-temp.m3u8");
 
         if(!Files.exists(playlistPath)) {
@@ -116,13 +110,13 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Resource getVideoSegment(String videoId, String quality, Integer segmentNumber) {
+    public Resource getVideoSegment(Long videoId, String quality, Integer segmentNumber) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
         verifyRequestParams(videoId, quality, sourcePath, streamQuality);
 
-        Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), videoId, quality);
+        Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), String.valueOf(videoId), quality);
         Path segmentPath = segmentPath(outputDir, segmentNumber);
 
         if(!Files.exists(segmentPath)) {
@@ -143,7 +137,7 @@ public class VideoServiceImpl implements VideoService {
         return new FileSystemResource(segmentPath);
     }
 
-    private void verifyRequestParams(String videoId, String quality, Path sourcePath, StreamQuality sq){
+    private void verifyRequestParams(Long videoId, String quality, Path sourcePath, StreamQuality sq){
         if (sourcePath == null) {
             throw new VideoFileNotFoundException("Source video not found for videoId=" + videoId);
         }
@@ -152,36 +146,9 @@ public class VideoServiceImpl implements VideoService {
         }
     }
 
-    @Override
-    public Map<String, List<Map<String, String>>> getFoldersList() {
-        List<Map<String, String>> parsedMovieDirectories = parseDirectories(videoProperties.getStoragePath() + "/Movies");
-        List<Map<String, String>> parsedShowDirectories = parseDirectories(videoProperties.getStoragePath() + "/Shows");
-
-        Map<String, List<Map<String, String>>> result = new HashMap<>();
-        result.put("Movies", parsedMovieDirectories);
-        result.put("Shows", parsedShowDirectories);
-
-        return result;
-    }
-
-    private Path resolveSourceVideo(String videoId) {
-        Path root = Paths.get(videoProperties.getStoragePath());
-        try (Stream<Path> walk = Files.walk(root)) {
-            return walk
-                    .filter(Files::isRegularFile)
-                    .filter(p -> {
-                        String name = p.getFileName().toString();
-                        String nameWithoutExt = name.contains(".")
-                                ? name.substring(0, name.lastIndexOf('.'))
-                                : name;
-                        return nameWithoutExt.equals(videoId);
-                    })
-                    .findFirst()
-                    .orElse(null);
-        } catch (Exception e) {
-            log.error("Error resolving videoId={}", videoId, e);
-            return null;
-        }
+    private Path resolveSourceVideo(Long videoId) {
+        Video video = videoRepository.findById(videoId).orElseThrow(() -> new VideoFileNotFoundException("Source video not found for videoId=" + videoId));
+        return Paths.get(video.getPathToVideo());
     }
 
     private String buildPlaylist(Path sourcePath){

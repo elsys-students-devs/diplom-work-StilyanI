@@ -4,20 +4,29 @@ import { Box, Typography, Select, MenuItem, SelectChangeEvent } from "@mui/mater
 import Image from "next/image";
 import {Media} from "@/app/services/MediaService";
 import {useParams} from "next/navigation";
-import {getShowById, getShowSeasons} from "@/app/services/ShowService";
+import {getShowById, getShowSeasons, ShowSeason} from "@/app/services/ShowService";
 import {useEffect, useState} from "react";
 import Link from "next/link";
 import MediaPageInfo from "@/app/components/MediaPage/MediaPageInfo";
 
 export default function ShowPage(){
     const showId = useParams().id;
-    const show = getShowById(showId as string) as Media;
-    const seasons = getShowSeasons(showId as string);
+    const show = getShowById(Number(showId)) as Media;
+    const [seasons, setSeasons] = useState<ShowSeason[]>([]);
     const [selectedSeason, setSelectedSeason] = useState(0);
 
     useEffect(() => {
-        if(seasons.length > 0) setSelectedSeason(seasons[0].number);
-    }, []);
+        const fetchShowSeasons = async () => {
+            const res = await getShowSeasons(Number(showId));
+            setSeasons(res.data);
+        };
+
+        if (showId) fetchShowSeasons();
+    }, [showId]);
+
+    useEffect(() => {
+        if(seasons.length > 0) setSelectedSeason(seasons[0].seasonNumber);
+    }, [seasons]);
 
     const handleChange = (event: SelectChangeEvent<number>) => {
         setSelectedSeason(Number(event.target.value));
@@ -54,22 +63,22 @@ export default function ShowPage(){
                         }}
                     >
                         {selectedSeason != 0 && seasons.map(season => (
-                            <MenuItem key={season.number} value={season.number}>Season {season.number}</MenuItem>
+                            <MenuItem key={season.seasonNumber} value={season.seasonNumber}>Season {season.seasonNumber}</MenuItem>
                         ))}
                     </Select>
                 </Box>
 
                 <Box sx={{mt: 3}}>
                     {selectedSeason != 0 && seasons[selectedSeason - 1].episodes.map((episode) => (
-                        <Link href={"/player"} key={episode.number}>
+                        <Link href={`/player?video-id=${episode.id}`} key={episode.id}>
                             <Box className="show-episode-container">
-                                <Typography sx={{fontSize: 32, marginRight: 3}}>{episode.number}</Typography>
+                                <Typography sx={{fontSize: 32, marginRight: 3}}>{episode.episodeNumber}</Typography>
 
-                                <Image src={episode.stillUrl} alt={episode.number + " still"} width={200} height={100} style={{borderRadius: "6px", marginRight: 50}}/>
+                                <Image src={episode.stillPath} alt={episode.episodeNumber + " still"} width={200} height={100} style={{borderRadius: "6px", marginRight: 50}}/>
 
                                 <Box>
-                                    <Typography sx={{fontSize: 24, fontWeight: 300, marginBottom: 1}}>{episode.title}</Typography>
-                                    <Typography sx={{fontSize: 16, fontWeight: 200}}>{episode.description}</Typography>
+                                    <Typography sx={{fontSize: 24, fontWeight: 300, marginBottom: 1}}>{episode.name}</Typography>
+                                    <Typography sx={{fontSize: 16, fontWeight: 200}}>{episode.overview}</Typography>
                                 </Box>
                             </Box>
                         </Link>

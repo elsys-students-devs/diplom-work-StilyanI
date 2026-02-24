@@ -34,7 +34,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
                 const res = await getUser(id);
                 setUser(res.data);
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         }
 

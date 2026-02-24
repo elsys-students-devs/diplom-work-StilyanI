@@ -124,7 +124,6 @@ public class TranscodingService {
             cmd.add("-maxrate"); cmd.add(profile.videoBitrate());
             cmd.add("-bufsize"); cmd.add(profile.videoBitrate());
             cmd.add("-vf"); cmd.add("scale=" + profile.width() + ":" + profile.height());
-            cmd.add("-force_key_frames"); cmd.add("\"expr:gte(t,n_forced*" + videoProperties.getSegmentDuration() + ")\"");
 
             cmd.add("-c:a"); cmd.add("aac");
             cmd.add("-b:a"); cmd.add(profile.audioBitrate());

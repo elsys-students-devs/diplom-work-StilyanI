@@ -1,9 +1,9 @@
 "use client";
 
-import {Media} from "@/app/services/MediaService";
+import {Media, parseReleaseDateToYear} from "@/app/services/MediaService";
 import {Box, Button, Typography} from "@mui/material";
 import Image from "next/image";
-import {runtimeFormated} from "@/app/util/MediaUtil";
+import Link from "next/link";
 
 interface MediaPageInfoProps {
     media: Media;
@@ -13,7 +13,7 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
     return (
         <Box>
             <Box className={"media-page-hero-backdrop-container"}>
-                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropUrl})`}}></Box>
+                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropPath})`}}></Box>
             </Box>
             <Box
                 className="media-page-hero"
@@ -24,7 +24,7 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
                     display: {xs: "none", lg: "block"}
                 }}
             >
-                <Image src={media?.logoUrl} alt={media.title + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
+                <Image src={media?.logoPath} alt={media.name + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
             </Box>
 
             <Box
@@ -32,7 +32,7 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
                     display: {xs: "none", sm: "block"}
                 }}
             >
-                <Image src={media.posterUrl} alt={media.title + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
+                <Image src={media.posterPath} alt={media.name + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
             </Box>
         
             <Box>
@@ -41,25 +41,22 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
                 >
 
                     <Box>
-                        <Typography fontSize={32}>{media.title}</Typography>
+                        <Typography fontSize={32}>{media.name}</Typography>
                         <Box sx={{display: "flex", justifyContent: "space-between"}}>
-                            <Typography fontSize={16}>{media.releaseYear}</Typography>
-                            {media.type === "movie" &&
-                                <Typography fontSize={16}>{runtimeFormated(media.runtime!)}</Typography>
-                            }
+                            <Typography fontSize={16}>{parseReleaseDateToYear(media.releaseDate)}</Typography>
                         </Box>
                     </Box>
 
                     {media.type === "movie" &&
                         <Box>
-                            <Button variant="contained" sx={{color: "black", backgroundColor: "white", fontSize: 16}}>Play</Button>
+                            <Button component={Link} href={`/player?video-id=${media.id}`} variant="contained" sx={{color: "black", backgroundColor: "white", fontSize: 16}}>Play</Button>
                         </Box>
                     }
                 </Box>
         
                 <Box sx={{paddingX: {xs: "10%", md: "20%"}, pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600}}>Overview</Typography>
-                    <Typography sx={{fontSize: 24, fontWeight: 100}}>{media.description}</Typography>
+                    <Typography sx={{fontSize: 24, fontWeight: 100}}>{media.overview}</Typography>
                 </Box>
             </Box>
         </Box>

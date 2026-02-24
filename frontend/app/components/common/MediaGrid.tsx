@@ -1,3 +1,5 @@
+"use client";
+
 import {Box, Grid, Typography} from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,17 +21,17 @@ export default function MediaGrid({
                         flexDirection="column"
                         alignItems="center"
                     >
-                        <Link replace href={(item.type === "movie" ? '/movies/' : "/shows/") + item.id}>
+                        <Link replace href={(item.type === "movie" ? '/movies/' : "/shows/") + item.tmdbId}>
                             <Image
                                 className="media-image"
-                                src={item.posterUrl}
-                                alt={item.title}
+                                src={item.posterPath}
+                                alt={item.name}
                                 width={300}
                                 height={450}
                             />
                         </Link>
                         <Typography sx={{mt: 2, fontSize: "24px"}}>
-                            {item.title}
+                            {item.name}
                         </Typography>
                     </Box>
                 </Grid>

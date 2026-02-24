@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-
 @Slf4j
 @RestController
 @RequestMapping("/video")
@@ -26,27 +23,22 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @GetMapping("/list")
-    public ResponseEntity<Map<String, List<Map<String, String>>>>  getFoldersList() {
-        return ResponseEntity.ok(videoService.getFoldersList());
-    }
-
     @GetMapping("/{videoId}/master.m3u8")
-    public ResponseEntity<Resource> getVideoMasterPlaylist(@PathVariable String videoId) {
+    public ResponseEntity<Resource> getVideoMasterPlaylist(@PathVariable Long videoId) {
         return ResponseEntity.ok()
                 .contentType(new MediaType("application", "x-mpegURL"))
                 .body(videoService.getVideoMasterPlaylist(videoId));
     }
 
     @GetMapping("/{videoId}/{quality}/playlist.m3u8")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable String videoId, @PathVariable String quality) {
+    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable Long videoId, @PathVariable String quality) {
         return ResponseEntity.ok()
                 .contentType(new MediaType("application", "x-mpegURL"))
                 .body(videoService.getVideoPlaylist(videoId, quality));
     }
 
     @GetMapping("/{videoId}/{quality}/segment{segmentNumber}.ts")
-    public ResponseEntity<Resource>  getVideoSegment(@PathVariable String videoId, @PathVariable String quality, @PathVariable Integer segmentNumber) {
+    public ResponseEntity<Resource>  getVideoSegment(@PathVariable Long videoId, @PathVariable String quality, @PathVariable Integer segmentNumber) {
         return ResponseEntity.ok()
                 .contentType(new MediaType("video", "mp2t"))
                 .body(videoService.getVideoSegment(videoId, quality, segmentNumber));

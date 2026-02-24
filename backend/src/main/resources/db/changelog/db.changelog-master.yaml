@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: db/changelog/001-init.yaml
+  - include:
+      file: db/changelog/002-videos.yaml
+  - include:
+      file: db/changelog/003-video-progress-fk.yaml

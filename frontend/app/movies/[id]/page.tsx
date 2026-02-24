@@ -8,7 +8,7 @@ import { Box } from "@mui/material";
 
 export default function MoviePage(){
     const movieId = useParams().id;
-    const movie = getMovieById(movieId as string) as Media;
+    const movie = getMovieById(Number(movieId)) as Media;
 
     return (
         <Box sx={{pb: 10}}>
