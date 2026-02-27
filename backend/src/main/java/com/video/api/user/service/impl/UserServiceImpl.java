@@ -1,7 +1,7 @@
 package com.video.api.user.service.impl;
 
 import com.video.api.user.dto.UserDto;
-import com.video.api.user.exception.LoginFailedException;
+import com.video.api.user.exception.UserNotExistsException;
 import com.video.api.user.mapper.UserMapper;
 import com.video.api.user.model.User;
 import com.video.api.user.repository.UserRepository;
@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(UUID id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new LoginFailedException("User with id [" + id + "] not found"));
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotExistsException("User with id [" + id + "] not found"));
 
         return userMapper.toDto(user);
     }

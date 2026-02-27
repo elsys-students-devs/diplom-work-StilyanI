@@ -5,13 +5,13 @@ import com.video.api.metadata.model.Media;
 import com.video.api.metadata.model.MediaType;
 import com.video.api.metadata.model.TvEpisode;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface MetadataService {
     Media[] getAll();
 
-    Media search(String name, MediaType mediaType, HashMap<String, String> otherParameters);
+    Media search(String name, MediaType mediaType, Map<String, String> otherParameters);
     Media search(String name, MediaType mediaType);
     Media search(String name, MediaType mediaType, Integer year);
 

@@ -29,9 +29,9 @@ import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -224,7 +224,7 @@ public class MetadataServiceImpl implements MetadataService {
     }
 
     @Override
-    public Media search(String name, MediaType mediaType, HashMap<String, String> otherParameters) {
+    public Media search(String name, MediaType mediaType, Map<String, String> otherParameters) {
         HttpUrl.Builder urlBuilder = Objects.requireNonNull(HttpUrl.parse(BASE_URL)).newBuilder()
                 .addPathSegment("search")
                 .addPathSegment(mediaType.getType())
@@ -245,7 +245,7 @@ public class MetadataServiceImpl implements MetadataService {
 
     @Override
     public Media search(String name, MediaType mediaType) {
-        return search(name, mediaType, (HashMap<String, String>) null);
+        return search(name, mediaType, (Map<String, String>) null);
     }
 
     @Cacheable(
@@ -257,10 +257,7 @@ public class MetadataServiceImpl implements MetadataService {
         if(year == null)
             return search(name, mediaType);
         else {
-            HashMap<String, String> params = new HashMap<>();
-            params.put("year", year.toString());
-
-            return search(name, mediaType, params);
+            return search(name, mediaType, Map.of("year", year.toString()));
         }
     }
 

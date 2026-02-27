@@ -1,5 +1,5 @@
 import axios from "axios";
-console.log("backend url: " + process.env.NEXT_PUBLIC_API_URL);
+
 const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
