@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Typography, Select, MenuItem, SelectChangeEvent } from "@mui/material";
+import { Box, Typography, Select, MenuItem, SelectChangeEvent, CircularProgress } from "@mui/material";
 import Image from "next/image";
 import {Media} from "@/app/services/MediaService";
 import {useParams} from "next/navigation";
@@ -14,11 +14,16 @@ export default function ShowPage(){
     const show = getShowById(Number(showId)) as Media;
     const [seasons, setSeasons] = useState<ShowSeason[]>([]);
     const [selectedSeason, setSelectedSeason] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchShowSeasons = async () => {
-            const res = await getShowSeasons(Number(showId));
-            setSeasons(res.data);
+            try {
+                const res = await getShowSeasons(Number(showId));
+                setSeasons(res.data);
+            } finally {
+                setLoading(false);
+            }
         };
 
         if (showId) fetchShowSeasons();
@@ -32,6 +37,8 @@ export default function ShowPage(){
         setSelectedSeason(Number(event.target.value));
     };
 
+    const currentSeason = seasons.find(s => s.seasonNumber === selectedSeason);
+
     return (
         <Box sx={{pb: 10}}>
             <MediaPageInfo media={show}/>
@@ -39,37 +46,41 @@ export default function ShowPage(){
             <Box sx={{paddingX: {xs: "10%", md: "20%"}}}>
                 <Box sx={{display: "flex", flexDirection: "row", alignItems: "center", pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600, mr: 3}}>Episodes</Typography>
-                    <Select
-                        displayEmpty
-                        value={selectedSeason}
-                        onChange={handleChange}
-                        sx={{
-                            minWidth: 150,
-                            color:"white",
-                            backgroundColor: "#242424",
-                            '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'white'
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'white'
-                            },
-                            '& .MuiSvgIcon-root': {
-                                color: 'white'
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'white',
-                                borderWidth: 1
-                            }
-                        }}
-                    >
-                        {selectedSeason != 0 && seasons.map(season => (
-                            <MenuItem key={season.seasonNumber} value={season.seasonNumber}>Season {season.seasonNumber}</MenuItem>
-                        ))}
-                    </Select>
+                    {loading ? (
+                        <CircularProgress size={24} />
+                    ) : (
+                        <Select
+                            displayEmpty
+                            value={selectedSeason}
+                            onChange={handleChange}
+                            sx={{
+                                minWidth: 150,
+                                color:"white",
+                                backgroundColor: "#242424",
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'white'
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'white'
+                                },
+                                '& .MuiSvgIcon-root': {
+                                    color: 'white'
+                                },
+                                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: 'white',
+                                    borderWidth: 1
+                                }
+                            }}
+                        >
+                            {selectedSeason != 0 && seasons.map(season => (
+                                <MenuItem key={season.seasonNumber} value={season.seasonNumber}>Season {season.seasonNumber}</MenuItem>
+                            ))}
+                        </Select>
+                    )}
                 </Box>
 
                 <Box sx={{mt: 3}}>
-                    {selectedSeason != 0 && seasons[selectedSeason - 1].episodes.map((episode) => (
+                    {currentSeason?.episodes.map((episode) => (
                         <Link href={`/player?video-id=${episode.id}`} key={episode.id}>
                             <Box className="show-episode-container">
                                 <Typography sx={{fontSize: 32, marginRight: 3}}>{episode.episodeNumber}</Typography>
