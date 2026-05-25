@@ -67,3 +67,5 @@ videos/
         └── S02/
             └── E01.mp4
 ```
+
+Once set up, go to [localhost:3000](http://localhost:3000) to access the interface.

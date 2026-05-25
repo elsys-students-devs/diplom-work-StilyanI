@@ -53,7 +53,7 @@ public class TranscodingService {
             if (existing != null && !existing.failed && existing.process.isAlive()) {
                 existing.highestSegmentOnDisk = scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments());
 
-                if (existing.requestTime < System.currentTimeMillis() - 10_000 && ((requestedSegment > existing.highestSegmentOnDisk + videoProperties.getSeekThresholdSegments() && requestedSegment > existing.startSegment + videoProperties.getSeekThresholdSegments()) || requestedSegment < existing.startSegment)) {
+                if (existing.requestTime < System.currentTimeMillis() - 5_000 && ((requestedSegment > existing.highestSegmentOnDisk + videoProperties.getSeekThresholdSegments() && requestedSegment > existing.startSegment + videoProperties.getSeekThresholdSegments()) || requestedSegment < existing.startSegment)) {
                     log.info("Seek detected: key={}, highestOnDisk={}, requested={}", key, existing.highestSegmentOnDisk, requestedSegment);
                     killProcess(key);
                     return launchFfmpeg(sourcePath, outputDir, profile, requestedSegment);
