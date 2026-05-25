@@ -1,0 +1,66 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-users-table
+      author: stilyani
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 001-create-video-progress-table
+      author: stilyani
+      changes:
+        - createTable:
+            tableName: video_progress
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: video_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: progress_seconds
+                  type: bigint
+              - column:
+                  name: progress_percent
+                  type: int
+
+  - changeSet:
+      id: 001-add-foreign-key-video-progress
+      author: stilyani
+      changes:
+        - addForeignKeyConstraint:
+            baseTableName: video_progress
+            baseColumnNames: user_id
+            constraintName: fk_video_progress_user
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE

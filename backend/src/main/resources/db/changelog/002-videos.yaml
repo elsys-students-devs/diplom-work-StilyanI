@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-videos-table
+      author: stilyani
+      changes:
+        - createTable:
+            tableName: videos
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: path_to_video
+                  type: VARCHAR(255)
