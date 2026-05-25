@@ -14,7 +14,7 @@
     "@mui/icons-material": "^7.3.5",
     "@mui/material": "^7.3.5",
     "axios": "^1.13.5",
-    "next": "^16.1.5",
+    "next": "^16.1.7",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "videojs-hls-quality-selector": "^2.0.0"
