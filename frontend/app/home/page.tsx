@@ -14,8 +14,36 @@ export default function HomePage() {
     const [shows, setShows] = useState<Media[]>([]);
     const [continueWatching, setContinueWatching] = useState<Media[]>([]);
     const [progress, setProgress] = useState<number[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const {user} = useUser();
+
+    function renderMovieList() {
+        if (loading) return <Typography variant="h5" sx={{ml: 5, mb: 2, color: "gray"}}>Loading...</Typography>;
+
+        if(movies.length > 0) return <ScrollableImageList items={movies} alignment={"vertical"}/>;
+        else return <Typography variant="h5" sx={{ml: 5, mb: 2, color: "gray"}}>No movies found</Typography>;
+    }
+
+    function renderShowList() {
+        if (loading) return <Typography variant="h5" sx={{ml: 5, mb: 2, color: "gray"}}>Loading...</Typography>;
+
+        if(shows.length > 0) return <ScrollableImageList items={shows} alignment={"vertical"}/>;
+        else return <Typography variant="h5" sx={{ml: 5, mb: 2, color: "gray"}}>No shows found</Typography>;
+    }
+
+    useEffect(() => {
+        async function loadMedia() {
+            const moviesRes = await getMovies();
+            const showsRes = await getShows();
+
+            setMovies(moviesRes);
+            setShows(showsRes);
+            setLoading(false);
+        }
+
+        loadMedia();
+    }, []);
 
     useEffect(() => {
         const fetched = async () => {
@@ -24,15 +52,13 @@ export default function HomePage() {
                 setProgress(res.data as number[]);
             }
         }
+
         fetched();
     }, [user]);
 
     useEffect(() => {
         const watchedMedia = getMediaListByIds(progress);
         setContinueWatching(watchedMedia);
-
-        setMovies(getMovies());
-        setShows(getShows());
     }, [progress])
 
     return(
@@ -46,10 +72,10 @@ export default function HomePage() {
                 }
 
                 <Typography variant="h4" sx={{ml: 3, mb: 2}}> Movies</Typography>
-                <ScrollableImageList items={movies} alignment={"vertical"}/>
+                {renderMovieList()}
 
                 <Typography variant="h4" sx={{ml: 3, mb: 2}}>Shows</Typography>
-                <ScrollableImageList items={shows} alignment={"vertical"}/>
+                {renderShowList()}
             </Box>
         </div>
     )

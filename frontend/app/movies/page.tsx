@@ -2,22 +2,36 @@
 
 import { useEffect, useState} from "react";
 import { getMovies } from "@/app/services/MovieService";
-import { Box } from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import MediaGrid from "@/app/components/common/MediaGrid";
 import {Media} from "@/app/services/MediaService";
 
 
 export default function MoviesPage(){
-    const movies = getMovies();
     const [movieList, setMovieList] = useState<Media[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setMovieList(movies);
-    }, [movies])
+        async function loadMovies() {
+            const movies = await getMovies();
+            setMovieList(movies);
+            setLoading(false);
+        }
+
+        loadMovies();
+    }, []);
+
+    if (loading) {
+        return <Typography variant="h2" className={"list-page-info-text"}>Loading...</Typography>;
+    }
 
     return (
         <Box sx={{ mt: 3 }}>
-            <MediaGrid items={movieList}/>
+            {movieList.length > 0 ?
+                <MediaGrid items={movieList}/>
+                :
+                <Typography variant="h2" sx={{color: "gray", textAlign: "center", mt: 5}}>No movies found</Typography>
+            }
         </Box>
     )
 }

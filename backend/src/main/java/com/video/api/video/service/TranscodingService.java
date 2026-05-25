@@ -35,11 +35,13 @@ public class TranscodingService {
         final int startSegment;
         volatile int highestSegmentOnDisk;
         volatile boolean failed = false;
+        long requestTime;
 
-        TranscodeJob(Process process, int startSegment, int highestSegmentOnDisk) {
+        TranscodeJob(Process process, int startSegment, int highestSegmentOnDisk, long requestTime) {
             this.process = process;
             this.startSegment = startSegment;
             this.highestSegmentOnDisk = highestSegmentOnDisk;
+            this.requestTime = requestTime;
         }
     }
 
@@ -51,7 +53,7 @@ public class TranscodingService {
             if (existing != null && !existing.failed && existing.process.isAlive()) {
                 existing.highestSegmentOnDisk = scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments());
 
-                if ((requestedSegment > existing.highestSegmentOnDisk + videoProperties.getSeekThresholdSegments() && requestedSegment > existing.startSegment + videoProperties.getSeekThresholdSegments()) || requestedSegment < existing.startSegment) {
+                if (existing.requestTime < System.currentTimeMillis() - 5_000 && ((requestedSegment > existing.highestSegmentOnDisk + videoProperties.getSeekThresholdSegments() && requestedSegment > existing.startSegment + videoProperties.getSeekThresholdSegments()) || requestedSegment < existing.startSegment)) {
                     log.info("Seek detected: key={}, highestOnDisk={}, requested={}", key, existing.highestSegmentOnDisk, requestedSegment);
                     killProcess(key);
                     return launchFfmpeg(sourcePath, outputDir, profile, requestedSegment);
@@ -173,7 +175,7 @@ public class TranscodingService {
             });
 
             log.info("Started FFmpeg: key={}, startSegment={}, seekTo={}s", jobKey, startSegment, seekSeconds);
-            return new TranscodeJob(proc, startSegment, currentHighest);
+            return new TranscodeJob(proc, startSegment, currentHighest, System.currentTimeMillis());
 
         } catch (Exception _) {
             log.error("Failed to start FFmpeg for source={}, quality={}", sourcePath, profile.name());

@@ -5,17 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @RestController
 @RequestMapping("/video")
-@CrossOrigin(origins = "*", methods = RequestMethod.GET)
 public class VideoController {
     private final VideoService videoService;
 
@@ -31,16 +30,18 @@ public class VideoController {
     }
 
     @GetMapping("/{videoId}/{quality}/playlist.m3u8")
-    public ResponseEntity<Resource> getVideoPlaylist(@PathVariable Long videoId, @PathVariable String quality) {
-        return ResponseEntity.ok()
-                .contentType(new MediaType("application", "x-mpegURL"))
-                .body(videoService.getVideoPlaylist(videoId, quality));
+    public CompletableFuture<ResponseEntity<Resource>> getVideoPlaylist(@PathVariable Long videoId, @PathVariable String quality) {
+        return videoService.getVideoPlaylist(videoId, quality)
+                .thenApply(resource -> ResponseEntity.ok()
+                        .contentType(new MediaType("application", "x-mpegURL"))
+                        .body(resource));
     }
 
     @GetMapping("/{videoId}/{quality}/segment{segmentNumber}.ts")
-    public ResponseEntity<Resource>  getVideoSegment(@PathVariable Long videoId, @PathVariable String quality, @PathVariable Integer segmentNumber) {
-        return ResponseEntity.ok()
-                .contentType(new MediaType("video", "mp2t"))
-                .body(videoService.getVideoSegment(videoId, quality, segmentNumber));
+    public CompletableFuture<ResponseEntity<Resource>>  getVideoSegment(@PathVariable Long videoId, @PathVariable String quality, @PathVariable Integer segmentNumber) {
+        return videoService.getVideoSegment(videoId, quality, segmentNumber)
+                .thenApply(resource -> ResponseEntity.ok()
+                        .contentType(new MediaType("video", "mp2t"))
+                        .body(resource));
     }
 }

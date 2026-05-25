@@ -2,7 +2,7 @@ import {getAllMedia, Media} from "@/app/services/MediaService";
 
 const movies: Media[] = getAllMedia().filter((media) => media.type === "movie");
 
-export function getMovies() {
+export async function getMovies() {
     return movies;
 }
 

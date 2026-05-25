@@ -12,32 +12,34 @@ interface MediaPageInfoProps {
 export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
     return (
         <Box>
-            <Box className={"media-page-hero-backdrop-container"}>
-                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropPath})`}}></Box>
-            </Box>
-            <Box
-                className="media-page-hero"
-            />
+            <Box display={"grid"} gridTemplateRows={"1fr 1fr 1fr"}>
+                <Box className={"media-page-hero-backdrop-image"} sx={{backgroundImage: `url(${media.backdropPath})`}}/>
 
-            <Box
-                sx={{
-                    display: {xs: "none", lg: "block"}
-                }}
-            >
-                <Image src={media?.logoPath} alt={media.name + " logo"} width={500} height={500} style={{position: "absolute", left: "50vw", top: "25vh"}} />
-            </Box>
+                <Box
+                    sx={{
+                        display: {xs: "none", lg: "block"},
+                        gridArea: "2 / 2 / 3 / 3",
+                        justifySelf: "center",
+                        zIndex: 1
+                    }}
+                >
+                    <Image src={media?.logoPath} alt={media.name + " logo"} width={500} height={500} style={{left: "50vw", top: "25vh"}} />
+                </Box>
 
-            <Box
-                sx={{
-                    display: {xs: "none", sm: "block"}
-                }}
-            >
-                <Image src={media.posterPath} alt={media.name + " poster"} width={500} height={500} style={{position: "absolute", width: "15vw", overflowY: "clip", left: "5%", bottom: "45%"}} />
-            </Box>
-        
-            <Box>
+                <Box
+                    sx={{
+                        display: {xs: "none", sm: "block"},
+                        gridArea: "2 / 1 / 4 / 1",
+                        zIndex: 1,
+                        justifySelf: "center"
+                    }}
+                >
+                    <Image src={media.posterPath} alt={media.name + " poster"} width={500} height={500} style={{width: "15vw"}} />
+                </Box>
+
                 <Box
                     className="media-page-info-ribbon"
+                    gridArea="3/1/4/4"
                 >
 
                     <Box>
@@ -53,7 +55,10 @@ export default function MediaPageInfo({media}: Readonly<MediaPageInfoProps>) {
                         </Box>
                     }
                 </Box>
-        
+
+            </Box>
+
+            <Box>
                 <Box sx={{paddingX: {xs: "10%", md: "20%"}, pt: 3}}>
                     <Typography sx={{fontSize: 24, fontWeight: 600}}>Overview</Typography>
                     <Typography sx={{fontSize: 24, fontWeight: 100}}>{media.overview}</Typography>

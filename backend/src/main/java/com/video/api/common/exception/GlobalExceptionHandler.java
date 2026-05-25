@@ -2,6 +2,7 @@ package com.video.api.common.exception;
 
 import com.video.api.metadata.exception.ResponseReadingFailureException;
 import com.video.api.metadata.exception.TMDBResponseException;
+import com.video.api.user.exception.LoginFailedException;
 import com.video.api.user.exception.UserExistsException;
 import com.video.api.user.exception.UserNotExistsException;
 import com.video.api.video.exception.InvalidStreamQualityException;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import javax.security.auth.login.LoginException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -176,8 +176,8 @@ public class GlobalExceptionHandler {
                 .body(error);
     }
 
-    @ExceptionHandler(LoginException.class)
-    public ResponseEntity<ErrorResponse> handleLoginException(LoginException ex) {
+    @ExceptionHandler(LoginFailedException.class)
+    public ResponseEntity<ErrorResponse> handleLoginFailedException(LoginFailedException ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.UNAUTHORIZED.value(),
                 ex.getMessage()
@@ -213,10 +213,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(RuntimeException ex) {
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                ex.getMessage()
+                "An unexpected error occurred: " + ex.getMessage()
         );
 
         return ResponseEntity

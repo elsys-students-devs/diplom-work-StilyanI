@@ -10,5 +10,5 @@ import java.util.List;
 @AllArgsConstructor
 public class ShowSeasonDto {
     private int seasonNumber;
-    List<TvEpisode> episodes;
+    private List<TvEpisode> episodes;
 }

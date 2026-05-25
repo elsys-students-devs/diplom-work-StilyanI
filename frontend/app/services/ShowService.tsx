@@ -23,7 +23,7 @@ export type ShowSeason = {
 
 const shows: Media[] = getAllMedia().filter((media) => media.type === "tv");
 
-export function getShows() {
+export async function getShows() {
     return shows;
 }
 
