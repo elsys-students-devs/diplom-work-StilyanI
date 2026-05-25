@@ -61,6 +61,16 @@ export default function AuthPage() {
                 return;
             }
 
+            if (password.length < 8){
+                setErrorMessage("Password must be at least 8 characters");
+                return;
+            }
+
+            if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+                setErrorMessage("Password must contain at least 1 special character");
+                return;
+            }
+
             fetched = async () => {
                 const res = await AuthService.register({username, password});
                 if (res.status === 201) {
@@ -81,6 +91,7 @@ export default function AuthPage() {
 
     const toggleLogin = () => {
         setLogin(!login);
+        setUsername("");
     };
 
     useEffect(() => {
