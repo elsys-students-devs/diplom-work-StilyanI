@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.video.api.video.util.VideoUtils.getVideoDuration;
@@ -74,7 +77,7 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public Resource getVideoPlaylist(Long videoId, String quality) {
+    public CompletableFuture<Resource> getVideoPlaylist(Long videoId, String quality) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
@@ -83,34 +86,32 @@ public class VideoServiceImpl implements VideoService {
         Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), String.valueOf(videoId), quality);
         Path playlistPath = outputDir.resolve("playlist-temp.m3u8");
 
-        if(!Files.exists(playlistPath)) {
-            transcodingService.ensureTranscoding(sourcePath, outputDir, streamQuality, 0);
-
-            long deadline = System.currentTimeMillis() + SEGMENT_TIMEOUT_MS;
-            while (scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments()) < 0) {
-
-                if (transcodingService.hasJobFailed(sourcePath, quality)) {
-                    throw new TranscodingFailedException("Transcoding failed for videoId=" + videoId);
-                }
-                if (System.currentTimeMillis() > deadline) {
-                    throw new TranscodingFailedException("Transcoding timed out for videoId=" + videoId);
-                }
-                sleep();
-            }
-
-            try {
-                String playlistContent = buildPlaylist(sourcePath);
-                Files.writeString(playlistPath, playlistContent);
-            } catch (Exception _) {
-                throw new PlaylistFailedCreationException("Failed to create variant playlist for videoId=" + videoId + ", quality=" + quality);
-            }
+        if(Files.exists(playlistPath)) {
+            return CompletableFuture.completedFuture(new FileSystemResource(playlistPath));
         }
 
-        return new FileSystemResource(playlistPath);
+        transcodingService.ensureTranscoding(sourcePath, outputDir, streamQuality, 0);
+
+        return waitForCondition(
+                () -> scanHighestSegment(outputDir, videoProperties.getSeekThresholdSegments()) >= 0,
+                () -> transcodingService.hasJobFailed(sourcePath, quality),
+                "Transcoding failed for videoId=" + videoId,
+                "Transcoding timed out for videoId=" + videoId,
+                System.currentTimeMillis() + SEGMENT_TIMEOUT_MS
+        ).thenApply(_ -> {
+            if (!Files.exists(playlistPath)) {
+                try {
+                    Files.writeString(playlistPath, buildPlaylist(sourcePath));
+                } catch (Exception _) {
+                    throw new PlaylistFailedCreationException("Failed to create variant playlist for videoId=" + videoId + ", quality=" + quality);
+                }
+            }
+            return new FileSystemResource(playlistPath);
+        });
     }
 
     @Override
-    public Resource getVideoSegment(Long videoId, String quality, Integer segmentNumber) {
+    public CompletableFuture<Resource> getVideoSegment(Long videoId, String quality, Integer segmentNumber) {
         Path sourcePath = resolveSourceVideo(videoId);
         StreamQuality streamQuality = StreamQuality.byName(quality);
 
@@ -119,22 +120,19 @@ public class VideoServiceImpl implements VideoService {
         Path outputDir = Paths.get(videoProperties.getHlsOutputPath(), String.valueOf(videoId), quality);
         Path segmentPath = segmentPath(outputDir, segmentNumber);
 
-        if(!Files.exists(segmentPath)) {
-            transcodingService.ensureTranscoding(sourcePath, outputDir, streamQuality, segmentNumber);
-
-            long deadline = System.currentTimeMillis() + SEGMENT_TIMEOUT_MS;
-            while (!transcodingService.isSegmentReady(segmentPath)) {
-                if (transcodingService.hasJobFailed(sourcePath, quality)) {
-                    throw new TranscodingFailedException("Transcoding failed for videoId=" + videoId);
-                }
-                if (System.currentTimeMillis() > deadline) {
-                    throw new TranscodingFailedException("Transcoding timed out for videoId=" + videoId);
-                }
-                sleep();
-            }
+        if(Files.exists(segmentPath)) {
+            return CompletableFuture.completedFuture(new FileSystemResource(segmentPath));
         }
 
-        return new FileSystemResource(segmentPath);
+        transcodingService.ensureTranscoding(sourcePath, outputDir, streamQuality, segmentNumber);
+
+        return waitForCondition(
+                () -> transcodingService.isSegmentReady(segmentPath),
+                () -> transcodingService.hasJobFailed(sourcePath, quality),
+                "Transcoding failed for videoId=" + videoId,
+                "Transcoding timed out for videoId=" + videoId,
+                System.currentTimeMillis() + SEGMENT_TIMEOUT_MS
+        ).thenApply(_ -> new FileSystemResource(segmentPath));
     }
 
     private void verifyRequestParams(Long videoId, String quality, Path sourcePath, StreamQuality sq){
@@ -177,11 +175,25 @@ public class VideoServiceImpl implements VideoService {
         return sb.toString();
     }
 
-    private static void sleep() {
-        try {
-            Thread.sleep(VideoServiceImpl.POLL_INTERVAL_MS);
-        } catch (InterruptedException _) {
-            Thread.currentThread().interrupt();
+    private CompletableFuture<Void> waitForCondition(
+            Supplier<Boolean> isReady,
+            Supplier<Boolean> hasFailed,
+            String failedMessage,
+            String timeoutMessage,
+            long deadline
+    ) {
+        if (Boolean.TRUE.equals(isReady.get())) {
+            return CompletableFuture.completedFuture(null);
         }
+        if (Boolean.TRUE.equals(hasFailed.get())) {
+            return CompletableFuture.failedFuture(new TranscodingFailedException(failedMessage));
+        }
+        if (System.currentTimeMillis() > deadline) {
+            return CompletableFuture.failedFuture(new TranscodingFailedException(timeoutMessage));
+        }
+
+        return CompletableFuture
+                .runAsync(() -> { }, CompletableFuture.delayedExecutor(POLL_INTERVAL_MS, TimeUnit.MILLISECONDS))
+                .thenCompose(_ -> waitForCondition(isReady, hasFailed, failedMessage, timeoutMessage, deadline));
     }
 }
